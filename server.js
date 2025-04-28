@@ -4,13 +4,12 @@ const tmi = require('tmi.js');
 const express = require('express');
 const http = require('http');
 const path = require('path');
-const open = require('open');
 const config = require('./config');
 
 // Settings
 const app = express();
 const server = http.createServer(app);
-const PORT_START = 3000; // starting port
+const PORT_START = 3000;
 let currentPort = PORT_START;
 
 app.use(express.static('public'));
@@ -28,6 +27,26 @@ const twitchClient = new tmi.Client({
 // Keep track of users we've already welcomed
 const knownUsers = new Set();
 
+// Randomized Welcome Messages
+const welcomeMessagesFirstTime = [
+  "🎉 WOOHOO!! 🎉 Everyone welcome @{user} to the chat! 🚀 You’re officially part of the fam now!! 🫶 LET'S GOOO!",
+  "🔥 YO @{user} just dropped into the chat! Show them some love!! 🚀🎤",
+  "🎊 HYPE ALERT!! 🎊 Welcome @{user} for their FIRST message! Let’s make it a party!! 🎉💥",
+  "🚀 @{user} has entered the chat!! TIME TO GET WILD!! 🕺💃",
+  "🥳 YOOO @{user} is here for the FIRST TIME! Big hugs and even bigger vibes!! 🎈🎉",
+];
+
+const welcomeMessagesFirstToday = [
+  "👋 Welcome back @{user}! So glad to have you hanging with us today! 🎉",
+  "🌟 Hey @{user}! Thanks for joining us today! You rock! 🤘",
+  "💬 First chat today from @{user}! Everyone say hi! 👋🚀",
+];
+
+// Helper to pick random message
+function pickRandom(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
 // Twitch connection
 twitchClient.connect();
 
@@ -38,13 +57,18 @@ twitchClient.on('message', (channel, tags, message, self) => {
 
   if (tags['first-msg']) {
     console.log(`🎉 First-time chatter detected: ${username}`);
-    twitchClient.say(channel, `Hey @${username}, welcome to the stream! 🎉`);
+    const template = pickRandom(welcomeMessagesFirstTime);
+    const finalMessage = template.replace('{user}', username);
+    twitchClient.say(channel, finalMessage);
     return;
   }
 
   if (!knownUsers.has(username)) {
     knownUsers.add(username);
     console.log(`👋 (Backup) First time today: ${username}`);
+    const template = pickRandom(welcomeMessagesFirstToday);
+    const finalMessage = template.replace('{user}', username);
+    twitchClient.say(channel, finalMessage);
   }
 });
 
