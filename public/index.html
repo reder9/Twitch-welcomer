@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en" class="bg-gray-900 text-white h-full">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Twitch Welcome Bot Config</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="h-full flex items-center justify-center">
+    <div class="w-full max-w-md px-6 py-10 bg-gray-800 rounded-2xl shadow-lg">
+      <h1 class="text-3xl font-bold mb-6 text-center text-indigo-400">Twitch Bot Setup</h1>
+      <form id="config-form" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium mb-1">Bot Username</label>
+          <input
+            type="text"
+            name="username"
+            class="w-full px-4 py-2 rounded-lg bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            required />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium mb-1">OAuth Token</label>
+          <input
+            type="password"
+            name="password"
+            class="w-full px-4 py-2 rounded-lg bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            required />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium mb-1">Channel to Join</label>
+          <input
+            type="text"
+            name="channels"
+            class="w-full px-4 py-2 rounded-lg bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            required />
+        </div>
+
+        <button
+          type="submit"
+          class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 rounded-lg font-semibold text-white transition duration-200">
+          Save & Start Bot
+        </button>
+      </form>
+
+      <p id="status-message" class="mt-6 text-center text-sm text-green-400 opacity-0 transition-opacity duration-500">
+        Bot started successfully!
+      </p>
+    </div>
+
+    <script>
+      document.getElementById('config-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const config = {
+          username: formData.get('username'),
+          password: formData.get('password'),
+          channels: [formData.get('channels')]
+        };
+
+        const response = await fetch('/save-config', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(config)
+        });
+
+        const statusMessage = document.getElementById('status-message');
+        if (response.ok) {
+          statusMessage.textContent = '✅ Bot started successfully!';
+          statusMessage.classList.remove('opacity-0', 'text-red-400');
+          statusMessage.classList.add('opacity-100', 'text-green-400');
+        } else {
+          statusMessage.textContent = '❌ Failed to start bot.';
+          statusMessage.classList.remove('opacity-0', 'text-green-400');
+          statusMessage.classList.add('opacity-100', 'text-red-400');
+        }
+
+        setTimeout(() => {
+          statusMessage.classList.add('opacity-0');
+        }, 4000);
+      });
+    </script>
+  </body>
+</html>
