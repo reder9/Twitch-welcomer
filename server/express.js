@@ -1,10 +1,14 @@
 const express = require('express');
-const { saveTwitchConfig, getTwitchConfig, getAdditionalConfig } = require('../config');
+const path = require('path');
+const { saveTwitchConfig, getTwitchConfig, getAdditionalConfig, saveAdditionalConfig } = require('../config');
 const tmi = require('tmi.js');
 
 function createExpressApp() {
   const app = express();
-  app.use(express.static('public'));
+
+  // Ensure static files (index.html, config-extra.html, etc.) are served from the public folder
+  app.use(express.static(path.join(__dirname, '..', 'public')));
+
   app.use(express.json());
 
   app.post('/save-config', async (req, res) => {
@@ -36,22 +40,25 @@ function createExpressApp() {
     }
   });
 
- app.get('/get-config', (req, res) => {
+  app.get('/get-config', (req, res) => {
     const config = getTwitchConfig();
     res.json(config);
   });
 
-  // Save additional settings
   app.post('/save-additional-config', (req, res) => {
     const { welcomeNewPosters, welcomeFirstTimeToday, welcomeFirstTimeViewers, messages } = req.body;
     saveAdditionalConfig({ welcomeNewPosters, welcomeFirstTimeToday, welcomeFirstTimeViewers, messages });
     res.json({ message: '✅ Additional settings saved successfully!' });
   });
 
-  // Get additional settings
   app.get('/get-additional-config', (req, res) => {
     const config = getAdditionalConfig();
     res.json(config);
+  });
+
+  // Optional: fallback route for unknown paths (could return index.html or 404)
+  app.use((req, res) => {
+    res.status(404).sendFile(path.join(__dirname, '..', 'public', 'index.html'));
   });
 
   return app;

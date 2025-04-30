@@ -1,13 +1,17 @@
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
 const { startServer } = require('./server');
+const { getTwitchConfig } = require('./config');
 
 let mainWindow;
 
 async function createWindow() {
   try {
     const port = await startServer();
-    
+
+    const config = getTwitchConfig();
+    const hasValidAuth = config.username && config.password;
+
     mainWindow = new BrowserWindow({
       width: 900,
       height: 700,
@@ -18,7 +22,8 @@ async function createWindow() {
       show: false
     });
 
-    mainWindow.loadURL(`http://localhost:${port}`);
+    const page = hasValidAuth ? 'config-extra.html' : 'index.html';
+    mainWindow.loadURL(`http://localhost:${port}/${page}`);
 
     mainWindow.once('ready-to-show', () => {
       mainWindow.show();

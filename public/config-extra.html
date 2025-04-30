@@ -10,35 +10,39 @@
   <div class="bg-gray-800 rounded-2xl p-8 shadow-2xl w-full max-w-md space-y-6">
     <h1 class="text-2xl font-bold text-center text-blue-400">🎉 Additional Twitch Welcomer Settings</h1>
 
-    <form id="additional-config-form" class="space-y-4">
+    <form id="additional-config-form" class="space-y-6">
       <!-- Welcome new posters -->
-      <div>
-        <label for="welcomeNewPosters" class="block text-sm font-medium text-gray-300">Welcome new posters</label>
-        <input type="checkbox" id="welcomeNewPosters" class="mt-1" />
+      <div class="flex items-center gap-2">
+        <input type="checkbox" id="welcomeNewPosters" class="h-4 w-4 text-blue-600 rounded focus:ring-blue-500" />
+        <label for="welcomeNewPosters" class="text-sm text-gray-300">Welcome new posters</label>
       </div>
 
       <!-- Welcome first-time posters today -->
-      <div>
-        <label for="welcomeFirstTimeToday" class="block text-sm font-medium text-gray-300">Welcome first-time posters for today</label>
-        <input type="checkbox" id="welcomeFirstTimeToday" class="mt-1" />
+      <div class="flex items-center gap-2">
+        <input type="checkbox" id="welcomeFirstTimeToday" class="h-4 w-4 text-blue-600 rounded focus:ring-blue-500" />
+        <label for="welcomeFirstTimeToday" class="text-sm text-gray-300">Welcome first-time posters for today</label>
       </div>
 
       <!-- Welcome first-time viewers -->
-      <div>
-        <label for="welcomeFirstTimeViewers" class="block text-sm font-medium text-gray-300">Welcome first-time viewers</label>
-        <input type="checkbox" id="welcomeFirstTimeViewers" class="mt-1" />
+      <div class="flex items-center gap-2">
+        <input type="checkbox" id="welcomeFirstTimeViewers" class="h-4 w-4 text-blue-600 rounded focus:ring-blue-500" />
+        <label for="welcomeFirstTimeViewers" class="text-sm text-gray-300">Welcome first-time viewers</label>
       </div>
 
-      <!-- Messages -->
-      <div id="messages-container" class="space-y-2">
+      <!-- Messages (conditionally shown) -->
+      <div id="messages-container" class="space-y-2 hidden">
         <label class="block text-sm font-medium text-gray-300">Welcome Messages</label>
         <ul id="messages-list" class="space-y-2">
-          <!-- Messages will be added here dynamically -->
+          <!-- Messages will be added dynamically -->
         </ul>
-        <button type="button" id="add-message-btn" class="w-full bg-blue-600 hover:bg-blue-700 transition-colors text-white font-semibold py-2 rounded-lg">+ Add Message</button>
+        <button type="button" id="add-message-btn" class="w-full bg-blue-600 hover:bg-blue-700 transition-colors text-white font-semibold py-2 rounded-lg">
+          + Add Message
+        </button>
       </div>
 
-      <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 transition-colors text-white font-semibold py-2 rounded-lg">Save Settings</button>
+      <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 transition-colors text-white font-semibold py-2 rounded-lg">
+        Save Settings
+      </button>
     </form>
   </div>
 
@@ -51,59 +55,68 @@
     const addMessageBtn = document.getElementById('add-message-btn');
     const messagesList = document.getElementById('messages-list');
 
-    // Load additional config
+    function updateMessagesVisibility() {
+      const shouldShow =
+        welcomeFirstTimeToday.checked || welcomeFirstTimeViewers.checked;
+      messagesContainer.classList.toggle('hidden', !shouldShow);
+    }
+
+    // Add event listeners to checkboxes
+    welcomeFirstTimeToday.addEventListener('change', updateMessagesVisibility);
+    welcomeFirstTimeViewers.addEventListener('change', updateMessagesVisibility);
+
+    // Load config on page load
     window.addEventListener('DOMContentLoaded', async () => {
       const res = await fetch('/get-additional-config');
       const config = await res.json();
 
-      // Set values for checkboxes
       welcomeNewPosters.checked = config.welcomeNewPosters;
       welcomeFirstTimeToday.checked = config.welcomeFirstTimeToday;
       welcomeFirstTimeViewers.checked = config.welcomeFirstTimeViewers;
 
-      // Set messages for First Time and First Today
-      config.welcomeMessagesFirstTime.forEach((message, index) => {
-        const messageItem = document.createElement('li');
-        messageItem.classList.add('flex', 'gap-2', 'items-center');
-        messageItem.innerHTML = `
+      const allMessages = [
+        ...(config.welcomeMessagesFirstTime || []),
+        ...(config.welcomeMessagesFirstToday || [])
+      ];
+
+      allMessages.forEach((message, index) => {
+        const li = document.createElement('li');
+        li.className = 'flex gap-2 items-center';
+        li.innerHTML = `
           <input type="text" value="${message}" class="bg-gray-700 border border-gray-600 rounded-lg p-2 w-full" />
           <button type="button" class="text-red-500" onclick="removeMessage(${index})">❌</button>
         `;
-        messagesList.appendChild(messageItem);
+        messagesList.appendChild(li);
       });
 
-      config.welcomeMessagesFirstToday.forEach((message, index) => {
-        const messageItem = document.createElement('li');
-        messageItem.classList.add('flex', 'gap-2', 'items-center');
-        messageItem.innerHTML = `
-          <input type="text" value="${message}" class="bg-gray-700 border border-gray-600 rounded-lg p-2 w-full" />
-          <button type="button" class="text-red-500" onclick="removeMessage(${index})">❌</button>
-        `;
-        messagesList.appendChild(messageItem);
-      });
+      updateMessagesVisibility();
     });
 
-    // Add a new message input
+    // Add message
     addMessageBtn.addEventListener('click', () => {
-      const messageItem = document.createElement('li');
-      messageItem.classList.add('flex', 'gap-2', 'items-center');
-      messageItem.innerHTML = `
+      const li = document.createElement('li');
+      li.className = 'flex gap-2 items-center';
+      li.innerHTML = `
         <input type="text" value="New welcome message" class="bg-gray-700 border border-gray-600 rounded-lg p-2 w-full" />
-        <button type="button" class="text-red-500" onclick="removeMessage()">❌</button>
+        <button type="button" class="text-red-500" onclick="this.closest('li').remove()">❌</button>
       `;
-      messagesList.appendChild(messageItem);
+      messagesList.appendChild(li);
     });
 
-    // Remove a message
     function removeMessage(index) {
-      messagesList.children[index].remove();
+      if (messagesList.children[index]) {
+        messagesList.children[index].remove();
+      }
     }
 
+    // Handle form submission
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      // Gather settings
-      const messages = Array.from(messagesList.children).map(item => item.querySelector('input').value);
+      const messages = Array.from(messagesList.querySelectorAll('input'))
+        .map(input => input.value.trim())
+        .filter(msg => msg);
+
       const settings = {
         welcomeNewPosters: welcomeNewPosters.checked,
         welcomeFirstTimeToday: welcomeFirstTimeToday.checked,
@@ -111,7 +124,6 @@
         messages,
       };
 
-      // Save settings
       const res = await fetch('/save-additional-config', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -119,7 +131,7 @@
       });
 
       const result = await res.json();
-      alert(result.message); // Show success message
+      alert(result.message);
     });
   </script>
 </body>
