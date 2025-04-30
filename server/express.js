@@ -1,39 +1,60 @@
 const express = require('express');
-const fs = require('fs');
-const path = require('path');
-const { startBot } = require('./bot');
+const { saveTwitchConfig, getTwitchConfig, getAdditionalConfig } = require('../config');
+const tmi = require('tmi.js');
 
-const configPath = path.join(__dirname, '../config/config.json');
-const app = express();
+function createExpressApp() {
+  const app = express();
+  app.use(express.static('public'));
+  app.use(express.json());
 
-app.use(express.json());
-app.use(express.static(path.join(__dirname, '../public')));
+  app.post('/save-config', async (req, res) => {
+    const { username, password, channel } = req.body;
 
-app.post('/save-config', (req, res) => {
-  fs.writeFileSync(configPath, JSON.stringify(req.body, null, 2));
-  startBot(req.body);
-  res.send('✅ Configuration saved and bot restarted!');
-});
+    if (!username || !password || !channel) {
+      return res.status(400).json({ message: 'All fields are required.' });
+    }
 
-function getSavedConfig() {
-  if (!fs.existsSync(configPath)) return null;
-  const config = JSON.parse(fs.readFileSync(configPath));
-  return config;
-}
-
-function startExpressServer(port = 3000) {
-  return new Promise((resolve, reject) => {
-    app.listen(port, () => {
-      console.log(`🌐 Express running on http://localhost:${port}`);
-      const config = getSavedConfig();
-      if (config && config.username && config.password && config.channels.length) {
-        startBot(config);
-      }
-      resolve();
-    }).on('error', (err) => {
-      reject(err);
+    const client = new tmi.Client({
+      identity: {
+        username,
+        password,
+      },
+      channels: [channel],
     });
+
+    try {
+      await client.connect();
+      await client.disconnect();
+
+      // Save if auth succeeds
+      saveTwitchConfig({ username, password, channel });
+      res.status(200).json({ message: '✅ Configuration saved successfully!' });
+
+    } catch (err) {
+      console.error('Twitch auth failed:', err.message);
+      res.status(401).json({ message: '❌ Authentication failed. Please check your OAuth token and username.' });
+    }
   });
+
+ app.get('/get-config', (req, res) => {
+    const config = getTwitchConfig();
+    res.json(config);
+  });
+
+  // Save additional settings
+  app.post('/save-additional-config', (req, res) => {
+    const { welcomeNewPosters, welcomeFirstTimeToday, welcomeFirstTimeViewers, messages } = req.body;
+    saveAdditionalConfig({ welcomeNewPosters, welcomeFirstTimeToday, welcomeFirstTimeViewers, messages });
+    res.json({ message: '✅ Additional settings saved successfully!' });
+  });
+
+  // Get additional settings
+  app.get('/get-additional-config', (req, res) => {
+    const config = getAdditionalConfig();
+    res.json(config);
+  });
+
+  return app;
 }
 
-module.exports = { startExpressServer };
+module.exports = { createExpressApp };

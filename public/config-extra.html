@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Additional Twitch Welcomer Settings</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white min-h-screen flex items-center justify-center">
+  <div class="bg-gray-800 rounded-2xl p-8 shadow-2xl w-full max-w-md space-y-6">
+    <h1 class="text-2xl font-bold text-center text-blue-400">🎉 Additional Twitch Welcomer Settings</h1>
+
+    <form id="additional-config-form" class="space-y-4">
+      <!-- Welcome new posters -->
+      <div>
+        <label for="welcomeNewPosters" class="block text-sm font-medium text-gray-300">Welcome new posters</label>
+        <input type="checkbox" id="welcomeNewPosters" class="mt-1" />
+      </div>
+
+      <!-- Welcome first-time posters today -->
+      <div>
+        <label for="welcomeFirstTimeToday" class="block text-sm font-medium text-gray-300">Welcome first-time posters for today</label>
+        <input type="checkbox" id="welcomeFirstTimeToday" class="mt-1" />
+      </div>
+
+      <!-- Welcome first-time viewers -->
+      <div>
+        <label for="welcomeFirstTimeViewers" class="block text-sm font-medium text-gray-300">Welcome first-time viewers</label>
+        <input type="checkbox" id="welcomeFirstTimeViewers" class="mt-1" />
+      </div>
+
+      <!-- Messages -->
+      <div id="messages-container" class="space-y-2">
+        <label class="block text-sm font-medium text-gray-300">Welcome Messages</label>
+        <ul id="messages-list" class="space-y-2">
+          <!-- Messages will be added here dynamically -->
+        </ul>
+        <button type="button" id="add-message-btn" class="w-full bg-blue-600 hover:bg-blue-700 transition-colors text-white font-semibold py-2 rounded-lg">+ Add Message</button>
+      </div>
+
+      <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 transition-colors text-white font-semibold py-2 rounded-lg">Save Settings</button>
+    </form>
+  </div>
+
+  <script>
+    const form = document.getElementById('additional-config-form');
+    const welcomeNewPosters = document.getElementById('welcomeNewPosters');
+    const welcomeFirstTimeToday = document.getElementById('welcomeFirstTimeToday');
+    const welcomeFirstTimeViewers = document.getElementById('welcomeFirstTimeViewers');
+    const messagesContainer = document.getElementById('messages-container');
+    const addMessageBtn = document.getElementById('add-message-btn');
+    const messagesList = document.getElementById('messages-list');
+
+    // Load additional config
+    window.addEventListener('DOMContentLoaded', async () => {
+      const res = await fetch('/get-additional-config');
+      const config = await res.json();
+
+      // Set values for checkboxes
+      welcomeNewPosters.checked = config.welcomeNewPosters;
+      welcomeFirstTimeToday.checked = config.welcomeFirstTimeToday;
+      welcomeFirstTimeViewers.checked = config.welcomeFirstTimeViewers;
+
+      // Set messages for First Time and First Today
+      config.welcomeMessagesFirstTime.forEach((message, index) => {
+        const messageItem = document.createElement('li');
+        messageItem.classList.add('flex', 'gap-2', 'items-center');
+        messageItem.innerHTML = `
+          <input type="text" value="${message}" class="bg-gray-700 border border-gray-600 rounded-lg p-2 w-full" />
+          <button type="button" class="text-red-500" onclick="removeMessage(${index})">❌</button>
+        `;
+        messagesList.appendChild(messageItem);
+      });
+
+      config.welcomeMessagesFirstToday.forEach((message, index) => {
+        const messageItem = document.createElement('li');
+        messageItem.classList.add('flex', 'gap-2', 'items-center');
+        messageItem.innerHTML = `
+          <input type="text" value="${message}" class="bg-gray-700 border border-gray-600 rounded-lg p-2 w-full" />
+          <button type="button" class="text-red-500" onclick="removeMessage(${index})">❌</button>
+        `;
+        messagesList.appendChild(messageItem);
+      });
+    });
+
+    // Add a new message input
+    addMessageBtn.addEventListener('click', () => {
+      const messageItem = document.createElement('li');
+      messageItem.classList.add('flex', 'gap-2', 'items-center');
+      messageItem.innerHTML = `
+        <input type="text" value="New welcome message" class="bg-gray-700 border border-gray-600 rounded-lg p-2 w-full" />
+        <button type="button" class="text-red-500" onclick="removeMessage()">❌</button>
+      `;
+      messagesList.appendChild(messageItem);
+    });
+
+    // Remove a message
+    function removeMessage(index) {
+      messagesList.children[index].remove();
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      // Gather settings
+      const messages = Array.from(messagesList.children).map(item => item.querySelector('input').value);
+      const settings = {
+        welcomeNewPosters: welcomeNewPosters.checked,
+        welcomeFirstTimeToday: welcomeFirstTimeToday.checked,
+        welcomeFirstTimeViewers: welcomeFirstTimeViewers.checked,
+        messages,
+      };
+
+      // Save settings
+      const res = await fetch('/save-additional-config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(settings),
+      });
+
+      const result = await res.json();
+      alert(result.message); // Show success message
+    });
+  </script>
+</body>
+</html>

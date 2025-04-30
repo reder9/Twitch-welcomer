@@ -1,14 +1,17 @@
 {
   "name": "twitch-first-time-welcomer",
   "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
+  "main": "main.js",
+  "description": "",
   "author": "",
   "license": "ISC",
-  "description": "",
+  "keywords": [],
+  "scripts": {
+    "start": "electron .",
+    "dev": "node server.js",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
+  },
   "dependencies": {
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
@@ -16,6 +19,22 @@
     "tmi.js": "^1.8.5"
   },
   "devDependencies": {
-    "electron": "^36.0.0"
+    "electron": "^36.0.0",
+    "electron-builder": "^26.0.12",
+    "electron-store": "^10.0.1"
+  },
+  "build": {
+    "appId": "com.yourname.twitchwelcomebot",
+    "mac": {
+      "target": "dmg"
+    },
+    "files": [
+      "main.js",
+      "server.js",
+      "config.js",
+      "public/**/*",
+      "node_modules/**/*",
+      "package.json"
+    ]
   }
 }

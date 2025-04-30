@@ -1,85 +1,120 @@
 <!DOCTYPE html>
-<html lang="en" class="bg-gray-900 text-white h-full">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Twitch Welcome Bot Config</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-  </head>
-  <body class="h-full flex items-center justify-center">
-    <div class="w-full max-w-md px-6 py-10 bg-gray-800 rounded-2xl shadow-lg">
-      <h1 class="text-3xl font-bold mb-6 text-center text-indigo-400">Twitch Bot Setup</h1>
-      <form id="config-form" class="space-y-4">
-        <div>
-          <label class="block text-sm font-medium mb-1">Bot Username</label>
-          <input
-            type="text"
-            name="username"
-            class="w-full px-4 py-2 rounded-lg bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            required />
-        </div>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Twitch Welcomer Config</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white min-h-screen flex items-center justify-center">
+  <div class="bg-gray-800 rounded-2xl p-8 shadow-2xl w-full max-w-md space-y-6">
+    <h1 class="text-2xl font-bold text-center text-blue-400">🎉 Twitch Welcomer Setup</h1>
+    
+    <form id="config-form" class="space-y-4">
+      <div>
+        <label for="username" class="block text-sm font-medium text-gray-300">Twitch Username</label>
+        <input type="text" id="username" placeholder="e.g. MyBot" class="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+      </div>
 
-        <div>
-          <label class="block text-sm font-medium mb-1">OAuth Token</label>
-          <input
-            type="password"
-            name="password"
-            class="w-full px-4 py-2 rounded-lg bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            required />
-        </div>
+      <div>
+        <label for="password" class="block text-sm font-medium text-gray-300">OAuth Token</label>
+        <input type="text" id="password" placeholder="oauth:abc123..." class="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+      </div>
 
-        <div>
-          <label class="block text-sm font-medium mb-1">Channel to Join</label>
-          <input
-            type="text"
-            name="channels"
-            class="w-full px-4 py-2 rounded-lg bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            required />
-        </div>
+      <div>
+        <label for="channel" class="block text-sm font-medium text-gray-300">Channel Name</label>
+        <input type="text" id="channel" placeholder="e.g. yourchannel" class="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+      </div>
 
-        <button
-          type="submit"
-          class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 rounded-lg font-semibold text-white transition duration-200">
-          Save & Start Bot
-        </button>
-      </form>
+      <button id="save-button" type="submit" class="w-full bg-blue-600 hover:bg-blue-700 transition-colors text-white font-semibold py-2 rounded-lg flex items-center justify-center gap-2">
+        <span>💾 Save Config</span>
+        <svg id="spinner" class="animate-spin h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+        </svg>
+      </button>
+    </form>
 
-      <p id="status-message" class="mt-6 text-center text-sm text-green-400 opacity-0 transition-opacity duration-500">
-        Bot started successfully!
-      </p>
-    </div>
+    <div id="response-message" class="text-sm text-center hidden mt-2"></div>
+  </div>
 
-    <script>
-      document.getElementById('config-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const formData = new FormData(e.target);
-        const config = {
-          username: formData.get('username'),
-          password: formData.get('password'),
-          channels: [formData.get('channels')]
-        };
+  <script>
+    const form = document.getElementById('config-form');
+    const messageEl = document.getElementById('response-message');
+    const spinner = document.getElementById('spinner');
+    const saveBtn = document.getElementById('save-button');
 
-        const response = await fetch('/save-config', {
+    // Load saved config when the page loads
+    window.addEventListener('DOMContentLoaded', async () => {
+      const res = await fetch('/get-config');
+      const config = await res.json();
+
+      if (config.username) {
+        document.getElementById('username').value = config.username;
+      }
+      if (config.password) {
+        document.getElementById('password').value = config.password;
+      }
+      if (Array.isArray(config.channels) && config.channels.length > 0) {
+        document.getElementById('channel').value = config.channels[0];
+      }
+
+      // If username and password are set, load the additional config
+      if (config.username && config.password) {
+        const additionalRes = await fetch('/get-additional-config');
+        const additionalConfig = await additionalRes.json();
+        
+        // Update form with additional config values if available
+        document.getElementById('welcomeNewPosters').checked = additionalConfig.welcomeNewPosters;
+        document.getElementById('welcomeFirstTimeToday').checked = additionalConfig.welcomeFirstTimeToday;
+        document.getElementById('welcomeFirstTimeViewers').checked = additionalConfig.welcomeFirstTimeViewers;
+      }
+    });
+
+    // Handle form submission to save config
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const channel = document.getElementById('channel').value.trim();
+
+      if (!username || !password || !channel) {
+        alert('Please fill in all fields.');
+        return;
+      }
+
+      // Show spinner + saving message
+      spinner.classList.remove('hidden');
+      messageEl.textContent = 'Saving...';
+      messageEl.classList.remove('text-red-400', 'text-green-400', 'hidden');
+      messageEl.classList.add('text-blue-400');
+
+      try {
+        const res = await fetch('/save-config', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(config)
+          body: JSON.stringify({ username, password, channel }),
         });
 
-        const statusMessage = document.getElementById('status-message');
-        if (response.ok) {
-          statusMessage.textContent = '✅ Bot started successfully!';
-          statusMessage.classList.remove('opacity-0', 'text-red-400');
-          statusMessage.classList.add('opacity-100', 'text-green-400');
-        } else {
-          statusMessage.textContent = '❌ Failed to start bot.';
-          statusMessage.classList.remove('opacity-0', 'text-green-400');
-          statusMessage.classList.add('opacity-100', 'text-red-400');
-        }
+        const result = await res.json();
+        spinner.classList.add('hidden');
 
-        setTimeout(() => {
-          statusMessage.classList.add('opacity-0');
-        }, 4000);
-      });
-    </script>
-  </body>
+        if (!res.ok) {
+          messageEl.textContent = result.message;
+          messageEl.classList.remove('text-blue-400', 'text-green-400');
+          messageEl.classList.add('text-red-400');
+        } else {
+          messageEl.textContent = result.message;
+          messageEl.classList.remove('text-blue-400', 'text-red-400');
+          messageEl.classList.add('text-green-400');
+        }
+      } catch (err) {
+        spinner.classList.add('hidden');
+        messageEl.textContent = 'An error occurred. Please try again.';
+        messageEl.classList.remove('text-blue-400', 'text-green-400');
+        messageEl.classList.add('text-red-400');
+      }
+    });
+  </script>
+</body>
 </html>
