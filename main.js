@@ -1,7 +1,7 @@
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
 const { startServer } = require('./server');
-const { getTwitchConfig } = require('./config');
+const { getTwitchConfig, getAdditionalConfig } = require('./config');
 
 let mainWindow;
 
@@ -9,8 +9,22 @@ async function createWindow() {
   try {
     const port = await startServer();
 
-    const config = getTwitchConfig();
-    const hasValidAuth = config.username && config.password;
+    const twitchConfig = getTwitchConfig();
+    const additionalConfig = getAdditionalConfig();
+
+    const hasValidAuth = twitchConfig.username && twitchConfig.password;
+    const hasWelcomeMessages =
+      Array.isArray(additionalConfig.messages) && additionalConfig.messages.length > 0;
+
+    let page;
+
+    if (!hasValidAuth) {
+      page = 'index.html'; // Auth setup
+    } else if (!hasWelcomeMessages) {
+      page = 'config-extra.html'; // Welcome message config
+    } else {
+      page = 'landing.html'; // All set
+    }
 
     mainWindow = new BrowserWindow({
       width: 900,
@@ -22,7 +36,6 @@ async function createWindow() {
       show: false
     });
 
-    const page = hasValidAuth ? 'config-extra.html' : 'index.html';
     mainWindow.loadURL(`http://localhost:${port}/${page}`);
 
     mainWindow.once('ready-to-show', () => {

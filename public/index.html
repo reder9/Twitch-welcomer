@@ -1,15 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Twitch Welcomer Config</title>
+  <meta charset="UTF-8">
+  <title>Auth Config</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-900 text-white min-h-screen flex items-center justify-center">
-  <div class="bg-gray-800 rounded-2xl p-8 shadow-2xl w-full max-w-md space-y-6">
-    <h1 class="text-2xl font-bold text-center text-blue-400">🎉 Twitch Welcomer Setup</h1>
+<body class="bg-gray-900 text-white min-h-screen flex flex-col">
+
+  <!-- Full screen layout -->
+  <div class="flex flex-1 flex-col items-center justify-center text-center p-6">
+
+    <!-- Back button (hidden initially, only shown if settings saved) -->
+    <button id="back-button" onclick="window.history.back()" 
+            class="absolute top-4 left-4 bg-purple-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 hidden">
+      ← Back
+    </button>
     
+    <h2 class="text-3xl font-semibold mb-4 text-gray-300">🔐 Auth Configuration</h2>
+
     <form id="config-form" class="space-y-4">
       <div>
         <label for="username" class="block text-sm font-medium text-gray-300">Twitch Username</label>
@@ -34,44 +42,31 @@
         </svg>
       </button>
     </form>
-
-    <div id="response-message" class="text-sm text-center hidden mt-2"></div>
   </div>
 
+  <!-- Footer -->
+  <div id="footer-container" class="mt-auto"></div>
+
   <script>
+    // Function to check if settings are saved
+    async function checkSettings() {
+      const res = await fetch('/get-config');
+      const config = await res.json();
+
+      // If settings are present, show the back button
+      if (config.username && config.password && Array.isArray(config.channels) && config.channels.length > 0) {
+        document.getElementById('back-button').classList.remove('hidden');
+      }
+    }
+
+    // Call the checkSettings function on page load
+    window.addEventListener('DOMContentLoaded', checkSettings);
+
     const form = document.getElementById('config-form');
     const messageEl = document.getElementById('response-message');
     const spinner = document.getElementById('spinner');
     const saveBtn = document.getElementById('save-button');
 
-    // Load saved config when the page loads
-    window.addEventListener('DOMContentLoaded', async () => {
-      const res = await fetch('/get-config');
-      const config = await res.json();
-
-      if (config.username) {
-        document.getElementById('username').value = config.username;
-      }
-      if (config.password) {
-        document.getElementById('password').value = config.password;
-      }
-      if (Array.isArray(config.channels) && config.channels.length > 0) {
-        document.getElementById('channel').value = config.channels[0];
-      }
-
-      // If username and password are set, load the additional config
-      if (config.username && config.password) {
-        const additionalRes = await fetch('/get-additional-config');
-        const additionalConfig = await additionalRes.json();
-        
-        // Update form with additional config values if available
-        document.getElementById('welcomeNewPosters').checked = additionalConfig.welcomeNewPosters;
-        document.getElementById('welcomeFirstTimeToday').checked = additionalConfig.welcomeFirstTimeToday;
-        document.getElementById('welcomeFirstTimeViewers').checked = additionalConfig.welcomeFirstTimeViewers;
-      }
-    });
-
-    // Handle form submission to save config
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const username = document.getElementById('username').value.trim();
@@ -115,6 +110,15 @@
         messageEl.classList.add('text-red-400');
       }
     });
+  </script>
+
+  <!-- Footer -->
+  <script>
+    fetch('/components/footer.html')
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById('footer-container').innerHTML = html;
+      });
   </script>
 </body>
 </html>

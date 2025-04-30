@@ -1,0 +1,21 @@
+<footer class="text-sm text-gray-500 p-4 text-center border-t mt-8">
+  <div id="footer-content">
+    <span id="app-name">ChatWave</span> 
+    <span id="app-version">v0.0.0</span> — 
+    <span id="app-author">by Your Name</span>
+  </div>
+
+  <script>
+    fetch('/api/app-info')
+      .then(res => res.json())
+      .then(info => {
+        document.getElementById('app-name').textContent = info.name || 'App';
+        document.getElementById('app-version').textContent = `v${info.version || '0.0.0'}`;
+        document.getElementById('app-author').textContent = info.author || '';
+      })
+      .catch(err => {
+        console.error('Failed to load app info:', err);
+        document.getElementById('footer-content').textContent = 'Unable to load app info';
+      });
+  </script>
+</footer>

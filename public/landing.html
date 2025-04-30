@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Welcome Bot Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .sidebar.collapsed .nav-label,
+    .sidebar.collapsed .sidebar-title {
+      display: none;
+    }
+    .sidebar.collapsed {
+      width: 4rem; /* 64px */
+    }
+  </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen flex flex-col">
+
+  <div class="flex flex-1">
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar bg-gray-800 w-64 p-4 transition-all duration-300 space-y-4">
+      <div class="flex justify-between items-center mb-4">
+        <h1 class="sidebar-title text-2xl font-bold text-purple-400">ChatWave</h1>
+        <button onclick="toggleSidebar()" class="text-gray-400 hover:text-purple-400">
+          ☰
+        </button>
+      </div>
+      <nav class="space-y-2">
+        <a href="/index.html" class="flex items-center gap-2 px-2 py-2 rounded hover:bg-purple-600 transition text-white" title="Auth Config">
+          <span>🔐</span> <span class="nav-label">Auth Config</span>
+        </a>
+        <a href="/config-extra.html" class="flex items-center gap-2 px-2 py-2 rounded hover:bg-purple-600 transition text-white" title="Welcome Messages">
+          <span>💬</span> <span class="nav-label">Welcome Messages</span>
+        </a>
+      </nav>
+    </div>
+
+    <!-- Main content -->
+    <div class="flex-1 flex flex-col items-center justify-center text-center p-6">
+      <h2 class="text-3xl font-bold mb-4 text-purple-300">🚀 Launch Your Welcome Bot</h2>
+      <p class="mb-6 text-gray-300">Everything looks good! Start greeting your community automatically 🎉</p>
+      <button 
+        onclick="launchBot()" 
+        class="bg-purple-600 text-white px-6 py-3 rounded-lg shadow hover:bg-purple-700 transition"
+      >
+        🚀 Launch Bot
+      </button>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div id="footer-container" class="mt-auto"></div>
+
+  <script>
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('collapsed');
+    }
+
+    function launchBot() {
+      fetch('/launch-bot', { method: 'POST' })
+        .then(res => res.json())
+        .then(data => alert(data.message || 'Bot launched!'))
+        .catch(() => alert('Failed to launch bot.'));
+    }
+
+    // Load the shared footer
+    fetch('/components/footer.html')
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById('footer-container').innerHTML = html;
+      });
+  </script>
+</body>
+</html>

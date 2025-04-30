@@ -6,8 +6,15 @@
   <title>Additional Twitch Welcomer Settings</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-900 text-white min-h-screen flex items-center justify-center">
-  <div class="bg-gray-800 rounded-2xl p-8 shadow-2xl w-full max-w-md space-y-6">
+<body class="bg-gray-900 text-white min-h-screen flex flex-col">
+
+  <!-- Back button (hidden initially, only shown if settings saved) -->
+  <button id="back-button" onclick="window.history.back()" 
+          class="absolute top-4 left-4 bg-purple-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 hidden">
+    ← Back
+  </button>
+
+  <div class="bg-gray-800 rounded-2xl p-8 shadow-2xl w-full max-w-md mx-auto space-y-6 mt-16">
     <h1 class="text-2xl font-bold text-center text-blue-400">🎉 Additional Twitch Welcomer Settings</h1>
 
     <form id="additional-config-form" class="space-y-6">
@@ -45,6 +52,41 @@
       </button>
     </form>
   </div>
+
+  <!-- Footer -->
+  <footer class="bg-gray-900 text-gray-300 p-6 mt-12">
+    <div class="max-w-7xl mx-auto text-center">
+      <div id="footer-content" class="space-y-2">
+        <span id="app-name" class="text-lg font-semibold text-blue-400">ChatWave</span>
+        <div class="flex justify-center items-center gap-2 text-sm">
+          <span id="app-version" class="text-gray-500">v0.0.0</span>
+          <span class="text-gray-500">—</span>
+          <span id="app-author" class="text-gray-500">by Your Name</span>
+        </div>
+      </div>
+      <div class="mt-4 text-gray-500 text-xs">
+        <p>&copy; <span id="year"></span> ChatWave. All rights reserved.</p>
+      </div>
+    </div>
+
+    <script>
+      // Fetch app info from the API
+      fetch('/api/app-info')
+        .then(res => res.json())
+        .then(info => {
+          document.getElementById('app-name').textContent = info.name || 'ChatWave';
+          document.getElementById('app-version').textContent = `v${info.version || '0.0.0'}`;
+          document.getElementById('app-author').textContent = info.author || 'Your Name';
+        })
+        .catch(err => {
+          console.error('Failed to load app info:', err);
+          document.getElementById('footer-content').textContent = 'Unable to load app info';
+        });
+
+      // Set the current year for copyright
+      document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
+  </footer>
 
   <script>
     const form = document.getElementById('additional-config-form');
@@ -90,6 +132,11 @@
       });
 
       updateMessagesVisibility();
+      
+      // Show the back button if settings are already saved
+      if (config.welcomeNewPosters || config.welcomeFirstTimeToday || config.welcomeFirstTimeViewers) {
+        document.getElementById('back-button').classList.remove('hidden');
+      }
     });
 
     // Add message
@@ -132,6 +179,9 @@
 
       const result = await res.json();
       alert(result.message);
+
+      // Show the back button after saving
+      document.getElementById('back-button').classList.remove('hidden');
     });
   </script>
 </body>

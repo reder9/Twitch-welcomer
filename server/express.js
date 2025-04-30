@@ -1,16 +1,24 @@
 const express = require('express');
 const path = require('path');
+const fs = require('fs');
 const { saveTwitchConfig, getTwitchConfig, getAdditionalConfig, saveAdditionalConfig } = require('../config');
 const tmi = require('tmi.js');
+
+// Load package.json data
+const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'package.json'), 'utf-8'));
 
 function createExpressApp() {
   const app = express();
 
-  // Ensure static files (index.html, config-extra.html, etc.) are served from the public folder
+  // Serve static files
   app.use(express.static(path.join(__dirname, '..', 'public')));
+
+  // Serve shared component files (like footer)
+  app.use('/components', express.static(path.join(__dirname, '..', 'public/components')));
 
   app.use(express.json());
 
+  // Twitch config saving
   app.post('/save-config', async (req, res) => {
     const { username, password, channel } = req.body;
 
@@ -30,7 +38,6 @@ function createExpressApp() {
       await client.connect();
       await client.disconnect();
 
-      // Save if auth succeeds
       saveTwitchConfig({ username, password, channel });
       res.status(200).json({ message: '✅ Configuration saved successfully!' });
 
@@ -56,7 +63,13 @@ function createExpressApp() {
     res.json(config);
   });
 
-  // Optional: fallback route for unknown paths (could return index.html or 404)
+  // App info endpoint
+  app.get('/api/app-info', (req, res) => {
+    const { name, version, author } = packageJson;
+    res.json({ name, version, author });
+  });
+
+  // Fallback route
   app.use((req, res) => {
     res.status(404).sendFile(path.join(__dirname, '..', 'public', 'index.html'));
   });
