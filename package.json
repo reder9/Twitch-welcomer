@@ -1,5 +1,5 @@
 {
-  "name": "twitch-first-time-welcomer",
+  "name": "ChatWave",
   "version": "1.0.0",
   "main": "main.js",
   "description": "",
@@ -16,25 +16,39 @@
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "open": "^10.1.1",
-    "tmi.js": "^1.8.5"
+    "tmi.js": "^1.8.5",
+    "electron-store": "^10.0.1"
   },
   "devDependencies": {
     "electron": "^36.0.0",
-    "electron-builder": "^26.0.12",
-    "electron-store": "^10.0.1"
+    "electron-builder": "^26.0.12"
   },
   "build": {
-    "appId": "com.yourname.twitchwelcomebot",
-    "mac": {
-      "target": "dmg"
+    "appId": "com.redersoft.ChatWave",
+    "productName": "ChatWave",
+    "directories": {
+      "buildResources": "build"
     },
     "files": [
       "main.js",
       "server.js",
       "config.js",
       "public/**/*",
+      "server/**/*",
       "node_modules/**/*",
       "package.json"
-    ]
+    ],
+    "extraMetadata": {
+      "type": "module"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "mac": {
+      "target": "dmg"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
   }
 }
