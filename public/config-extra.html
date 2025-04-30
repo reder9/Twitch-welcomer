@@ -53,41 +53,6 @@
     </form>
   </div>
 
-  <!-- Footer -->
-  <footer class="bg-gray-900 text-gray-300 p-6 mt-12">
-    <div class="max-w-7xl mx-auto text-center">
-      <div id="footer-content" class="space-y-2">
-        <span id="app-name" class="text-lg font-semibold text-blue-400">ChatWave</span>
-        <div class="flex justify-center items-center gap-2 text-sm">
-          <span id="app-version" class="text-gray-500">v0.0.0</span>
-          <span class="text-gray-500">—</span>
-          <span id="app-author" class="text-gray-500">by Your Name</span>
-        </div>
-      </div>
-      <div class="mt-4 text-gray-500 text-xs">
-        <p>&copy; <span id="year"></span> ChatWave. All rights reserved.</p>
-      </div>
-    </div>
-
-    <script>
-      // Fetch app info from the API
-      fetch('/api/app-info')
-        .then(res => res.json())
-        .then(info => {
-          document.getElementById('app-name').textContent = info.name || 'ChatWave';
-          document.getElementById('app-version').textContent = `v${info.version || '0.0.0'}`;
-          document.getElementById('app-author').textContent = info.author || 'Your Name';
-        })
-        .catch(err => {
-          console.error('Failed to load app info:', err);
-          document.getElementById('footer-content').textContent = 'Unable to load app info';
-        });
-
-      // Set the current year for copyright
-      document.getElementById('year').textContent = new Date().getFullYear();
-    </script>
-  </footer>
-
   <script>
     const form = document.getElementById('additional-config-form');
     const welcomeNewPosters = document.getElementById('welcomeNewPosters');
@@ -183,6 +148,17 @@
       // Show the back button after saving
       document.getElementById('back-button').classList.remove('hidden');
     });
+  </script>
+
+  <!-- Footer -->
+  <div id="footer-container" class="mt-auto"></div>
+
+  <script>
+    fetch('/components/footer.html')
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById('footer-container').innerHTML = html;
+      });
   </script>
 </body>
 </html>

@@ -1,9 +1,9 @@
 {
   "name": "ChatWave",
   "version": "1.0.0",
+  "author": "",
   "main": "main.js",
   "description": "",
-  "author": "",
   "license": "ISC",
   "keywords": [],
   "scripts": {
@@ -13,11 +13,12 @@
     "dist": "electron-builder"
   },
   "dependencies": {
+    "cors": "^2.8.5",
     "dotenv": "^16.5.0",
+    "electron-store": "^10.0.1",
     "express": "^5.1.0",
     "open": "^10.1.1",
-    "tmi.js": "^1.8.5",
-    "electron-store": "^10.0.1"
+    "tmi.js": "^1.8.5"
   },
   "devDependencies": {
     "electron": "^36.0.0",
