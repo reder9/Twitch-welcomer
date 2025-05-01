@@ -22,6 +22,7 @@ function pickRandom(arr) {
 }
 
 function startBot(config) {
+  // Disconnect if an existing client is already connected
   if (client) {
     client.disconnect();
   }
@@ -53,6 +54,7 @@ function startBot(config) {
   });
 
   console.log('✅ Twitch bot started!');
+  return client; // ✅ Return the client so it can be controlled externally
 }
 
 module.exports = { startBot };

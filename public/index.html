@@ -18,7 +18,7 @@
     
     <h2 class="text-3xl font-semibold mb-4 text-gray-300">🔐 Auth Configuration</h2>
 
-    <form id="config-form" class="space-y-4">
+    <form id="config-form" class="space-y-4 w-full max-w-lg">
       <div>
         <label for="username" class="block text-sm font-medium text-gray-300">Twitch Username</label>
         <input type="text" id="username" placeholder="e.g. MyBot" class="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
@@ -53,14 +53,22 @@
   <script>
     // Function to check if settings are saved
     async function checkSettings() {
-      const res = await fetch('/get-config');
-      const config = await res.json();
+      try {
+        const res = await fetch('/get-config');
+        const config = await res.json();
 
-      // If settings are present, show the back button
-      if (config.username && config.password && Array.isArray(config.channels) && config.channels.length > 0) {
-        document.getElementById('back-button').classList.remove('hidden');
+        // If settings are present, populate form and show back button
+        if (config.username && config.password && Array.isArray(config.channels) && config.channels.length > 0) {
+          document.getElementById('username').value = config.username;
+          document.getElementById('password').value = config.password;
+          document.getElementById('channel').value = config.channels[0]; // Assuming single channel support
+          document.getElementById('back-button').classList.remove('hidden');
+        }
+      } catch (err) {
+        console.error('Failed to fetch config:', err);
       }
     }
+
 
     // Call the checkSettings function on page load
     window.addEventListener('DOMContentLoaded', checkSettings);

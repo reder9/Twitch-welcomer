@@ -1,8 +1,9 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
-const { saveTwitchConfig, getTwitchConfig, getAdditionalConfig, saveAdditionalConfig } = require('../config');
 const tmi = require('tmi.js');
+const { saveTwitchConfig, getTwitchConfig, getAdditionalConfig, saveAdditionalConfig } = require('../config');
+const { startBot } = require('./bot');
 
 // Load package.json data
 const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'package.json'), 'utf-8'));
@@ -13,7 +14,7 @@ function createExpressApp() {
   // Serve static files
   app.use(express.static(path.join(__dirname, '..', 'public')));
 
-  // Serve shared component files (like footer)
+  // Serve shared components
   app.use('/components', express.static(path.join(__dirname, '..', 'public/components')));
 
   app.use(express.json());
@@ -27,10 +28,7 @@ function createExpressApp() {
     }
 
     const client = new tmi.Client({
-      identity: {
-        username,
-        password,
-      },
+      identity: { username, password },
       channels: [channel],
     });
 
@@ -69,7 +67,54 @@ function createExpressApp() {
     res.json({ name, version, author });
   });
 
-  // Fallback route
+  // Bot management
+  let botRunning = false;
+  let botClient = null;
+
+  app.post('/launch-bot', (req, res) => {
+    try {
+      const config = getTwitchConfig();
+
+      if (!config || !config.username || !config.password || !config.channels) {
+        return res.status(400).json({ message: '❌ Missing Twitch configuration. Please save it first.' });
+      }
+
+      // Start and save client
+      botClient = startBot({
+        username: config.username,
+        password: config.password,
+        channels: [config.channels[0]]
+      });
+
+      botRunning = true;
+      res.status(200).json({ message: '✅ Bot launched successfully!' });
+
+    } catch (err) {
+      console.error('Error launching bot:', err.message);
+      res.status(500).json({ message: `❌ Failed to launch bot: ${err.message}` });
+    }
+  });
+
+  app.post('/stop-bot', (req, res) => {
+    try {
+      if (botClient) {
+        botClient.disconnect();
+        botClient = null;
+        botRunning = false;
+        res.status(200).json({ message: '🛑 Bot stopped successfully!' });
+      } else {
+        res.status(400).json({ message: '⚠️ Bot is not currently running.' });
+      }
+    } catch (err) {
+      res.status(500).json({ message: `❌ Failed to stop bot: ${err.message}` });
+    }
+  });
+
+  app.get('/bot-status', (req, res) => {
+    res.json({ running: botRunning });
+  });
+
+  // Fallback to main page
   app.use((req, res) => {
     res.status(404).sendFile(path.join(__dirname, '..', 'public', 'index.html'));
   });
@@ -78,3 +123,4 @@ function createExpressApp() {
 }
 
 module.exports = { createExpressApp };
+ 

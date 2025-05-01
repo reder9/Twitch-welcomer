@@ -1,5 +1,4 @@
 const { createExpressApp } = require('./server/express');
-const { startBot } = require('./server/bot');
 const { getTwitchConfig } = require('./config');
 const http = require('http');
 
@@ -35,10 +34,6 @@ async function startServer() {
 
     const app = createExpressApp(); // Create app AFTER selecting the port
     const server = http.createServer(app);
-
-    // Start the bot with saved config
-    const config = { twitch: getTwitchConfig() };
-    startBot(config);
 
     return new Promise((resolve, reject) => {
       server.listen(port, () => {

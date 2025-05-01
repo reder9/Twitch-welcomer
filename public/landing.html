@@ -10,7 +10,17 @@
       display: none;
     }
     .sidebar.collapsed {
-      width: 4rem; /* 64px */
+      width: 4rem;
+    }
+    .toast {
+      animation: fadeIn 0.3s ease, fadeOut 0.5s ease 3s forwards;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(1rem); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeOut {
+      to { opacity: 0; transform: translateY(1rem); }
     }
   </style>
 </head>
@@ -21,15 +31,13 @@
     <div id="sidebar" class="sidebar bg-gray-800 w-64 p-4 transition-all duration-300 space-y-4">
       <div class="flex justify-between items-center mb-4">
         <h1 class="sidebar-title text-2xl font-bold text-purple-400">ChatWave</h1>
-        <button onclick="toggleSidebar()" class="text-gray-400 hover:text-purple-400">
-          ☰
-        </button>
+        <button onclick="toggleSidebar()" class="text-gray-400 hover:text-purple-400">☰</button>
       </div>
       <nav class="space-y-2">
-        <a href="/index.html" class="flex items-center gap-2 px-2 py-2 rounded hover:bg-purple-600 transition text-white" title="Auth Config">
+        <a href="/index.html" class="flex items-center gap-2 px-2 py-2 rounded hover:bg-purple-600 transition text-white">
           <span>🔐</span> <span class="nav-label">Auth Config</span>
         </a>
-        <a href="/config-extra.html" class="flex items-center gap-2 px-2 py-2 rounded hover:bg-purple-600 transition text-white" title="Welcome Messages">
+        <a href="/config-extra.html" class="flex items-center gap-2 px-2 py-2 rounded hover:bg-purple-600 transition text-white">
           <span>💬</span> <span class="nav-label">Welcome Messages</span>
         </a>
       </nav>
@@ -38,33 +46,107 @@
     <!-- Main content -->
     <div class="flex-1 flex flex-col items-center justify-center text-center p-6">
       <h2 class="text-3xl font-bold mb-4 text-purple-300">🚀 Launch Your Welcome Bot</h2>
-      <p class="mb-6 text-gray-300">Everything looks good! Start greeting your community automatically 🎉</p>
-      <button 
-        onclick="launchBot()" 
-        class="bg-purple-600 text-white px-6 py-3 rounded-lg shadow hover:bg-purple-700 transition"
-      >
-        🚀 Launch Bot
-      </button>
+      <p class="mb-4 text-gray-300">Everything looks good! Start greeting your community automatically 🎉</p>
+
+      <div class="flex gap-4 mb-6">
+        <div id="launch-btn-container">
+          <button 
+            onclick="launchBot()" 
+            class="bg-purple-600 text-white px-6 py-3 rounded-lg shadow hover:bg-purple-700 transition"
+          >
+            🚀 Launch Bot
+          </button>
+        </div>
+        <div id="stop-btn-container" style="display: none;">
+          <button 
+            onclick="stopBot()" 
+            class="bg-red-600 text-white px-6 py-3 rounded-lg shadow hover:bg-red-700 transition"
+          >
+            🛑 Stop Bot
+          </button>
+        </div>
+      </div>
+
+      <div id="bot-status" class="text-lg font-semibold text-yellow-400">Status: Checking...</div>
     </div>
   </div>
 
   <!-- Footer -->
   <div id="footer-container" class="mt-auto"></div>
 
+  <!-- Toast container -->
+  <div id="toast-container" class="fixed top-4 right-4 space-y-2 z-50"></div>
+
   <script>
     function toggleSidebar() {
-      const sidebar = document.getElementById('sidebar');
-      sidebar.classList.toggle('collapsed');
+      document.getElementById('sidebar').classList.toggle('collapsed');
+    }
+
+    function showToast(message, type = 'success') {
+      const toast = document.createElement('div');
+      toast.className = `toast px-4 py-3 rounded shadow text-white text-sm max-w-sm ${
+        type === 'error' ? 'bg-red-600' : 'bg-green-600'
+      }`;
+      toast.textContent = message;
+
+      document.getElementById('toast-container').appendChild(toast);
+
+      setTimeout(() => {
+        toast.remove();
+      }, 4000);
     }
 
     function launchBot() {
       fetch('/launch-bot', { method: 'POST' })
         .then(res => res.json())
-        .then(data => alert(data.message || 'Bot launched!'))
-        .catch(() => alert('Failed to launch bot.'));
+        .then(data => {
+          updateBotStatus();
+          showToast(data.message || 'Bot launched!');
+        })
+        .catch(() => showToast('Failed to launch bot.', 'error'));
     }
 
-    // Load the shared footer
+    function stopBot() {
+      fetch('/stop-bot', { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+          updateBotStatus();
+          showToast(data.message || 'Bot stopped!');
+        })
+        .catch(() => showToast('Failed to stop bot.', 'error'));
+    }
+
+    function updateBotStatus() {
+      fetch('/bot-status')
+        .then(res => res.json())
+        .then(data => {
+          const statusEl = document.getElementById('bot-status');
+          const launchBtnContainer = document.getElementById('launch-btn-container');
+          const stopBtnContainer = document.getElementById('stop-btn-container');
+
+          if (data.running) {
+            statusEl.textContent = 'Status: ✅ Bot is Running';
+            statusEl.className = 'text-lg font-semibold text-green-400';
+            launchBtnContainer.style.display = 'none';
+            stopBtnContainer.style.display = 'block';
+          } else {
+            statusEl.textContent = 'Status: ❌ Bot is Stopped';
+            statusEl.className = 'text-lg font-semibold text-red-400';
+            launchBtnContainer.style.display = 'block';
+            stopBtnContainer.style.display = 'none';
+          }
+        })
+        .catch(() => {
+          const statusEl = document.getElementById('bot-status');
+          statusEl.textContent = 'Status: ⚠️ Unknown';
+          statusEl.className = 'text-lg font-semibold text-yellow-400';
+        });
+    }
+
+    // Initial status load
+    updateBotStatus();
+
+    // Load shared footer
     fetch('/components/footer.html')
       .then(res => res.text())
       .then(html => {
