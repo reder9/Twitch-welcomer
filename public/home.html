@@ -12,6 +12,22 @@
     .sidebar.collapsed {
       width: 4rem;
     }
+    .sidebar.collapsed .toggle-sidebar {
+      transform: rotate(180deg);
+    }
+    .toggle-sidebar {
+      background-color: rgba(107, 114, 128, 0.2);
+      border-radius: 50%;
+      padding: 0.25rem;
+      transition: all 0.3s ease;
+    }
+    .toggle-sidebar:hover {
+      background-color: rgba(167, 139, 250, 0.3);
+      transform: scale(1.1);
+    }
+    .sidebar.collapsed .toggle-sidebar:hover {
+      transform: rotate(180deg) scale(1.1);
+    }
     .toast {
       animation: fadeIn 0.3s ease, fadeOut 0.5s ease 3s forwards;
     }
@@ -31,7 +47,11 @@
     <div id="sidebar" class="sidebar bg-gray-800 w-64 p-4 transition-all duration-300 space-y-4">
       <div class="flex justify-between items-center mb-4">
         <h1 class="sidebar-title text-2xl font-bold text-purple-400">ChatWave</h1>
-        <button onclick="toggleSidebar()" class="text-gray-400 hover:text-purple-400">☰</button>
+        <button onclick="toggleSidebar()" class="toggle-sidebar text-purple-300 hover:text-purple-100">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+          </svg>
+        </button>
       </div>
       <nav class="space-y-2">
         <a href="/auth-config.html" class="flex items-center gap-2 px-2 py-2 rounded hover:bg-purple-600 transition text-white">
