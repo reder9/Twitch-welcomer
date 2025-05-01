@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Setup Guide - ChatWave Bot</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="bg-gray-800 w-full p-4 shadow-md">
+    <div class="max-w-5xl mx-auto flex justify-between items-center">
+      <h1 class="text-2xl font-bold text-purple-400">⚙️ ChatWave Setup Guide</h1>
+      <a href="/auth-config.html" class="text-blue-400 hover:text-blue-300 text-sm">← Back to Configuration</a>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-1 p-6 max-w-4xl mx-auto space-y-8">
+    <section>
+      <h2 class="text-xl font-semibold text-purple-300 mb-2">🎯 Step 1: Create a Twitch Bot Account</h2>
+      <p class="text-gray-300">
+        If you haven't already, create a separate Twitch account to act as your bot. You can do this at
+        <a href="https://www.twitch.tv/signup" target="_blank" class="text-blue-400 hover:underline">twitch.tv/signup</a>.
+        Give it a name like <code>MyChannelBot</code> so it's easy to recognize.
+      </p>
+    </section>
+
+    <section>
+      <h2 class="text-xl font-semibold text-purple-300 mb-2">🔑 Step 2: Generate Your OAuth Token</h2>
+      <p class="text-gray-300 mb-2">
+        The TMI Token Generator has been discontinued, but you can still generate a valid OAuth token using this trusted tool:
+      </p>
+      <a href="https://twitchtokengenerator.com/" target="_blank" class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium shadow-md transition">
+        Get OAuth Token at twitchtokengenerator.com
+      </a>
+      <p class="text-sm text-gray-400 mt-2">
+        Use the "Chat Token" option, and make sure you're logged in as your bot account when generating the token.
+        You’ll receive something like <code>oauth:abc123xyz456</code>. Copy this for the config screen.
+      </p>
+    </section>
+
+    <section>
+      <h2 class="text-xl font-semibold text-purple-300 mb-2">📺 Step 3: Enter Your Channel Name</h2>
+      <p class="text-gray-300">
+        This is your main Twitch channel (not the bot). For example, if your channel is <code>twitch.tv/superstreamer</code>,
+        enter <code>superstreamer</code> — no <code>#</code> or special symbols needed.
+      </p>
+    </section>
+
+    <section>
+      <h2 class="text-xl font-semibold text-purple-300 mb-2">✅ Step 4: Save and Launch</h2>
+      <p class="text-gray-300">
+        Once you've filled in your bot username, token, and channel name, hit <strong>Save Config</strong> and return to the dashboard to <strong>Launch Bot</strong>. Your Twitch welcome bot will be live!
+      </p>
+    </section>
+
+    <section>
+      <h2 class="text-xl font-semibold text-purple-300 mb-2">🛡️ A Note on Security</h2>
+      <p class="text-gray-300">
+        Third-party token generators are convenient but come with trust risks. If you're a developer, it's best to register your own Twitch app and generate tokens directly via the official OAuth flow.
+        See the <a href="https://dev.twitch.tv/docs/authentication" target="_blank" class="text-blue-400 hover:underline">Twitch OAuth documentation</a> for more info.
+      </p>
+    </section>
+
+    <section>
+      <h2 class="text-xl font-semibold text-purple-300 mb-2">❓ Still Need Help?</h2>
+      <p class="text-gray-300">
+        If you're stuck, try logging out and back into Twitch, double-checking your token format, or asking in a developer Discord or forum.
+        Make sure your bot account has sent at least one message in the channel chat!
+      </p>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <div id="footer-container" class="mt-auto"></div>
+  <script>
+    // Load shared footer
+    fetch('/components/footer.html')
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById('footer-container').innerHTML = html;
+      });
+  </script>
+</body>
+</html>

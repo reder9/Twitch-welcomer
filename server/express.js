@@ -116,7 +116,7 @@ function createExpressApp() {
 
   // Fallback to main page
   app.use((req, res) => {
-    res.status(404).sendFile(path.join(__dirname, '..', 'public', 'index.html'));
+    res.status(404).sendFile(path.join(__dirname, '..', 'public', 'auth-config.html'));
   });
 
   return app;

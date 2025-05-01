@@ -10,12 +10,13 @@
   <!-- Full screen layout -->
   <div class="flex flex-1 flex-col items-center justify-center text-center p-6">
 
-    <!-- Back button (hidden initially, only shown if settings saved) -->
-    <button id="back-button" onclick="window.history.back()" 
-            class="absolute top-4 left-4 bg-purple-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 hidden">
+    <!-- Back button -->
+    <a href="/home.html"
+       id="back-button"
+       class="absolute top-4 left-4 bg-purple-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 hidden">
       ← Back
-    </button>
-    
+    </a>
+
     <h2 class="text-3xl font-semibold mb-4 text-gray-300">🔐 Auth Configuration</h2>
 
     <form id="config-form" class="space-y-4 w-full max-w-lg">
@@ -42,26 +43,37 @@
         </svg>
       </button>
 
-      <!-- 🔧 ADD THIS BELOW THE BUTTON -->
       <p id="response-message" class="mt-4 text-sm hidden"></p>
     </form>
+
+    <!-- 🎯 Setup Guide Link Section -->
+    <div class="mt-8 bg-gray-800 border border-purple-600 p-4 rounded-lg w-full max-w-lg text-left shadow-lg">
+      <h3 class="text-lg font-semibold text-purple-300 mb-2">🧠 Need help setting up your bot?</h3>
+      <p class="text-sm text-gray-300">
+        Not sure how to create a Twitch bot or where to get your OAuth token? 
+        No worries — we've got a step-by-step guide just for you.
+      </p>
+      <a href="/setup-guide.html" class="mt-3 inline-block text-blue-400 hover:text-blue-300 font-medium transition">
+        👉 Read the Setup Guide
+      </a>
+    </div>
+
   </div>
 
   <!-- Footer -->
   <div id="footer-container" class="mt-auto"></div>
 
   <script>
-    // Function to check if settings are saved
+    // Fetch existing config
     async function checkSettings() {
       try {
         const res = await fetch('/get-config');
         const config = await res.json();
 
-        // If settings are present, populate form and show back button
         if (config.username && config.password && Array.isArray(config.channels) && config.channels.length > 0) {
           document.getElementById('username').value = config.username;
           document.getElementById('password').value = config.password;
-          document.getElementById('channel').value = config.channels[0]; // Assuming single channel support
+          document.getElementById('channel').value = config.channels[0];
           document.getElementById('back-button').classList.remove('hidden');
         }
       } catch (err) {
@@ -69,8 +81,6 @@
       }
     }
 
-
-    // Call the checkSettings function on page load
     window.addEventListener('DOMContentLoaded', checkSettings);
 
     const form = document.getElementById('config-form');
@@ -89,7 +99,6 @@
         return;
       }
 
-      // Show spinner + saving message
       spinner.classList.remove('hidden');
       messageEl.textContent = 'Saving...';
       messageEl.classList.remove('text-red-400', 'text-green-400', 'hidden');
@@ -121,10 +130,8 @@
         messageEl.classList.add('text-red-400');
       }
     });
-  </script>
 
-  <!-- Footer -->
-  <script>
+    // Load shared footer
     fetch('/components/footer.html')
       .then(res => res.text())
       .then(html => {

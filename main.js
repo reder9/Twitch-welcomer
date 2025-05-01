@@ -19,11 +19,11 @@ async function createWindow() {
     let page;
 
     if (!hasValidAuth) {
-      page = 'index.html'; // Auth setup
+      page = 'auth-config.html'; // Auth setup
     } else if (!hasWelcomeMessages) {
-      page = 'config-extra.html'; // Welcome message config
+      page = 'message-config.html'; // Welcome message config
     } else {
-      page = 'landing.html'; // All set
+      page = 'home.html'; // All set
     }
 
     mainWindow = new BrowserWindow({
