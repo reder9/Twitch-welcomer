@@ -145,12 +145,12 @@
           const stopBtnContainer = document.getElementById('stop-btn-container');
 
           if (data.running) {
-            statusEl.textContent = 'Status: ✅ Bot is Running';
+            statusEl.textContent = 'Status: ✅ Bot is running';
             statusEl.className = 'text-lg font-semibold text-green-400';
             launchBtnContainer.style.display = 'none';
             stopBtnContainer.style.display = 'block';
           } else {
-            statusEl.textContent = 'Status: ❌ Bot is Stopped';
+            statusEl.textContent = 'Status: ❌ Bot is not running';
             statusEl.className = 'text-lg font-semibold text-red-400';
             launchBtnContainer.style.display = 'block';
             stopBtnContainer.style.display = 'none';
