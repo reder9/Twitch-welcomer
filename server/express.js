@@ -1,12 +1,19 @@
-const express = require('express');
-const path = require('path');
-const fs = require('fs');
-const tmi = require('tmi.js');
-const { saveTwitchConfig, getTwitchConfig, getAdditionalConfig, saveAdditionalConfig } = require('../config');
-const { startBot } = require('./bot');
+import express from 'express';
+import path from 'path';
+import fs from 'fs';
+import tmi from 'tmi.js';
+import { fileURLToPath } from 'url';
+import { saveTwitchConfig, getTwitchConfig, getAdditionalConfig, saveAdditionalConfig } from '../config.js';
+import { startBot } from './bot.js';
+
+// Create __filename and __dirname equivalents
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Load package.json data
-const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'package.json'), 'utf-8'));
+const packageJson = JSON.parse(
+  fs.readFileSync(path.join(__dirname, '..', 'package.json'), 'utf-8')
+);
 
 function createExpressApp() {
   const app = express();
@@ -38,7 +45,6 @@ function createExpressApp() {
 
       saveTwitchConfig({ username, password, channel });
       res.status(200).json({ message: '✅ Configuration saved successfully!' });
-
     } catch (err) {
       console.error('Twitch auth failed:', err.message);
       res.status(401).json({ message: '❌ Authentication failed. Please check your OAuth token and username.' });
@@ -88,7 +94,6 @@ function createExpressApp() {
 
       botRunning = true;
       res.status(200).json({ message: '✅ Bot launched successfully!' });
-
     } catch (err) {
       console.error('Error launching bot:', err.message);
       res.status(500).json({ message: `❌ Failed to launch bot: ${err.message}` });
@@ -122,5 +127,4 @@ function createExpressApp() {
   return app;
 }
 
-module.exports = { createExpressApp };
- 
+export { createExpressApp };

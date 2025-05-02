@@ -1,10 +1,10 @@
-const tmi = require('tmi.js');
+import tmi from 'tmi.js';
 
 let client = null;
 const knownUsers = new Set();
 
 // Common bots to ignore (case insensitive)
-const BOT_LIST = [
+export const BOT_LIST = [
   'streamelements',
   'streamlabs',
   'nightbot',
@@ -61,7 +61,7 @@ function pickRandom(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
-function startBot(config) {
+export function startBot(config) {
   if (client) {
     client.disconnect();
   }
@@ -101,5 +101,3 @@ function startBot(config) {
   console.log('✅ Twitch bot started with bot detection!');
   return client;
 }
-
-module.exports = { startBot, BOT_LIST }; // Export BOT_LIST for external modification

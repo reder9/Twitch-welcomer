@@ -1,6 +1,6 @@
-const { createExpressApp } = require('./server/express');
-const { getTwitchConfig } = require('./config');
-const http = require('http');
+import { createExpressApp } from './server/express.js';
+import { getTwitchConfig } from './config.js';
+import http from 'http';
 
 const PORT_RANGE = { min: 3000, max: 4000 };
 
@@ -28,7 +28,7 @@ async function findAvailablePort(startPort) {
   });
 }
 
-async function startServer() {
+export async function startServer() {
   try {
     const port = await findAvailablePort(PORT_RANGE.min);
 
@@ -36,18 +36,18 @@ async function startServer() {
     const server = http.createServer(app);
 
     return new Promise((resolve, reject) => {
-      server.listen(port, () => {
-        console.log(`🚀 Server running at http://localhost:${port}`);
-        resolve(port);
-      }).on('error', (err) => {
-        console.error('❌ Server failed to start:', err);
-        reject(err);
-      });
+      server
+        .listen(port, () => {
+          console.log(`🚀 Server running at http://localhost:${port}`);
+          resolve(port);
+        })
+        .on('error', (err) => {
+          console.error('❌ Server failed to start:', err);
+          reject(err);
+        });
     });
   } catch (err) {
     console.error('❌ Failed to start server:', err.message);
     throw err;
   }
 }
-
-module.exports = { startServer };

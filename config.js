@@ -1,4 +1,5 @@
-const Store = require('electron-store').default;
+// config.js (ESM version)
+import Store from 'electron-store';
 
 const store = new Store({
   defaults: {
@@ -31,30 +32,23 @@ const store = new Store({
   },
 });
 
-function saveTwitchConfig({ username, password, channel }) {
+export function saveTwitchConfig({ username, password, channel }) {
   store.set('twitch.username', username);
   store.set('twitch.password', password);
   store.set('twitch.channels', [channel]);
 }
 
-function getTwitchConfig() {
+export function getTwitchConfig() {
   return store.get('twitch');
 }
 
-function saveAdditionalConfig({ welcomeNewPosters, welcomeFirstTimeToday, welcomeFirstTimeViewers, messages }) {
+export function saveAdditionalConfig({ welcomeNewPosters, welcomeFirstTimeToday, welcomeFirstTimeViewers, messages }) {
   store.set('additionalConfig.welcomeNewPosters', welcomeNewPosters);
   store.set('additionalConfig.welcomeFirstTimeToday', welcomeFirstTimeToday);
   store.set('additionalConfig.welcomeFirstTimeViewers', welcomeFirstTimeViewers);
   store.set('additionalConfig.messages', messages);
 }
 
-function getAdditionalConfig() {
+export function getAdditionalConfig() {
   return store.get('additionalConfig');
 }
-
-module.exports = {
-  saveTwitchConfig,
-  getTwitchConfig,
-  saveAdditionalConfig,
-  getAdditionalConfig,
-};

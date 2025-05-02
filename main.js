@@ -1,7 +1,12 @@
-const { app, BrowserWindow } = require('electron');
-const path = require('path');
-const { startServer } = require('./server');
-const { getTwitchConfig, getAdditionalConfig } = require('./config');
+import { app, BrowserWindow } from 'electron';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { startServer } from './server.js';
+import { getTwitchConfig, getAdditionalConfig } from './config.js';
+
+// Create equivalents for __filename and __dirname in ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 let mainWindow;
 
@@ -17,7 +22,6 @@ async function createWindow() {
       Array.isArray(additionalConfig.messages) && additionalConfig.messages.length > 0;
 
     let page;
-
     if (!hasValidAuth) {
       page = 'auth-config.html'; // Auth setup
     } else if (!hasWelcomeMessages) {
@@ -26,7 +30,7 @@ async function createWindow() {
       page = 'home.html'; // All set
     }
 
-    // Determine correct icon path by platform
+    // Determine the correct icon path by platform
     let iconPath;
     if (process.platform === 'win32') {
       iconPath = path.join(__dirname, 'build/icons/win/icon.ico');
@@ -42,9 +46,9 @@ async function createWindow() {
       icon: iconPath,
       webPreferences: {
         nodeIntegration: true,
-        contextIsolation: false
+        contextIsolation: false,
       },
-      show: false
+      show: false,
     });
 
     mainWindow.loadURL(`http://localhost:${port}/${page}`);
@@ -56,16 +60,13 @@ async function createWindow() {
     mainWindow.on('closed', () => {
       mainWindow = null;
     });
-
   } catch (err) {
     console.error('Failed to start application:', err);
     app.quit();
   }
 }
 
-app.whenReady().then(() => {
-  createWindow();
-});
+app.whenReady().then(createWindow);
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();

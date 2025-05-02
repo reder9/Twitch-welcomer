@@ -2,6 +2,7 @@
   "name": "ChatWave",
   "version": "1.0.0",
   "author": "Caleb Reder",
+  "type": "module",
   "main": "main.js",
   "description": "",
   "license": "ISC",
@@ -41,7 +42,7 @@
       "type": "module"
     },
     "mac": {
-    "target": ["dmg", "zip"],
+      "target": "dmg",
       "icon": "build/icons/icon.icns"
     },
     "win": {
