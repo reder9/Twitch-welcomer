@@ -26,9 +26,20 @@ async function createWindow() {
       page = 'home.html'; // All set
     }
 
+    // Determine correct icon path by platform
+    let iconPath;
+    if (process.platform === 'win32') {
+      iconPath = path.join(__dirname, 'build/icons/win/icon.ico');
+    } else if (process.platform === 'darwin') {
+      app.dock.setIcon(path.join(__dirname, 'build/icons/256x256.png'));
+    } else {
+      iconPath = path.join(__dirname, 'build/icons/png/256x256.png');
+    }
+
     mainWindow = new BrowserWindow({
       width: 900,
       height: 700,
+      icon: iconPath,
       webPreferences: {
         nodeIntegration: true,
         contextIsolation: false
