@@ -213,8 +213,8 @@
         config.welcomeMessagesFirstToday.forEach(msg => addMessage('first-time-today-list', msg));
       }
 
-      if (config.welcomeMessagesFirstViewerers) {
-        config.welcomeMessagesFirstViewerers.forEach(msg => addMessage('first-time-viewers-list', msg));
+      if (config.welcomeMessagesFirstViewer) {
+        config.welcomeMessagesFirstViewer.forEach(msg => addMessage('first-time-viewers-list', msg));
       }
 
       toggleSection('welcomeNewPosters', 'new-posters-messages');
@@ -239,7 +239,7 @@
         welcomeMessagesFirstToday: Array.from(
           document.getElementById('first-time-today-list').querySelectorAll('textarea')
         ).map(t => t.value.trim()).filter(msg => msg),
-        welcomeMessagesFirstViewerers: Array.from(
+        welcomeMessagesFirstViewer: Array.from(
           document.getElementById('first-time-viewers-list').querySelectorAll('textarea')
         ).map(t => t.value.trim()).filter(msg => msg),
       };
