@@ -1,9 +1,9 @@
 import tmi from 'tmi.js';
+import { getMessageConfig } from '../config.js'; // Make sure this path is correct
 
 let client = null;
 const knownUsers = new Set();
 
-// Common bots to ignore (case insensitive)
 export const BOT_LIST = [
   'streamelements',
   'streamlabs',
@@ -18,42 +18,31 @@ export const BOT_LIST = [
   'deepbot'
 ];
 
-// Enhanced welcome messages
-const welcomeMessagesFirstTime = [
-  "🎉 WOOHOO!! 🎉 Everyone welcome @{user} to the chat! 🚀",
-  "🔥 YO @{user} just dropped into the chat! Show them some love!!",
-  "🎊 HYPE ALERT!! 🎊 Welcome @{user}!",
-  "🚀 @{user} has entered the chat!! TIME TO GET WILD!!",
-  "🥳 @{user} is here for the FIRST TIME! Big vibes!!",
-];
+// Message send counters
+export const welcomeStats = {
+  newPostersCount: 0,
+  firstTodayCount: 0,
+  firstViewersCount: 0,
+};
 
-const welcomeMessagesFirstToday = [
-  "👋 Welcome back @{user}! So glad to have you hanging with us today!",
-  "🌟 Hey @{user}! Thanks for joining us today! You rock!",
-  "💬 First chat today from @{user}! Everyone say hi! 👋",
-];
-
-// Check if user is a bot
 function isBotUser(username) {
-  if (!username) return true; // Skip if no username
-  
+  if (!username) return true;
+
   const lowerUsername = username.toLowerCase();
-  
-  // Check against known bot list
+
   if (BOT_LIST.some(bot => lowerUsername.includes(bot))) {
     return true;
   }
-  
-  // Check for bot-like patterns in username
+
   const botPatterns = [
-    /bot$/i,       // Ends with "bot"
-    /\[bot\]/i,     // Contains "[bot]"
-    /\(bot\)/i,     // Contains "(bot)"
-    /_bot_/i,       // Contains "_bot_"
-    /command/i,     // Common in command bots
-    /helper/i       // Common in helper bots
+    /bot$/i,
+    /\[bot\]/i,
+    /\(bot\)/i,
+    /_bot_/i,
+    /command/i,
+    /helper/i
   ];
-  
+
   return botPatterns.some(pattern => pattern.test(username));
 }
 
@@ -65,6 +54,8 @@ export function startBot(config) {
   if (client) {
     client.disconnect();
   }
+
+  const messageConfig = getMessageConfig();
 
   client = new tmi.Client({
     options: { debug: true },
@@ -78,26 +69,46 @@ export function startBot(config) {
   client.connect();
 
   client.on('message', (channel, tags, message, self) => {
-    if (self) return; // Ignore messages from the bot itself
-    
+    if (self) return;
+
     const username = tags['display-name'] || tags['username'];
-    
-    // Skip if user is a bot
-    if (isBotUser(username)) {
+    if (isBotUser(username)) return;
+
+    // Handle first-time message in chat
+    if (tags['first-msg'] && messageConfig.welcomeNewPosters) {
+      const msg = pickRandom(messageConfig.welcomeMesssagesNewPosters).replace('{user}', username);
+      client.say(channel, msg);
+      welcomeStats.newPostersCount++;
+      knownUsers.add(username);
       return;
     }
 
-    if (tags['first-msg']) {
-      const msg = pickRandom(welcomeMessagesFirstTime).replace('{user}', username);
+    // Handle first message today from known user
+    if (!knownUsers.has(username) && messageConfig.welcomeFirstTimeToday) {
+      const msg = pickRandom(messageConfig.welcomeMessagesFirstToday).replace('{user}', username);
       client.say(channel, msg);
-      knownUsers.add(username); // Add to known users after first message
-    } else if (!knownUsers.has(username)) {
+      welcomeStats.firstTodayCount++;
       knownUsers.add(username);
-      const msg = pickRandom(welcomeMessagesFirstToday).replace('{user}', username);
+      return;
+    }
+
+    // Handle first-time viewer (passive/lurking viewer without badges/mod/sub)
+    const isFirstTimeViewer =
+      messageConfig.welcomeFirstTimeViewers &&
+      !tags['mod'] &&
+      !tags['subscriber'] &&
+      !tags['vip'] &&
+      tags['badges'] === null &&
+      !knownUsers.has(username);
+
+    if (isFirstTimeViewer) {
+      const msg = pickRandom(messageConfig.welcomeMessagesFirstView).replace('{user}', username);
       client.say(channel, msg);
+      welcomeStats.firstViewersCount++;
+      knownUsers.add(username);
     }
   });
 
-  console.log('✅ Twitch bot started with bot detection!');
+  console.log('✅ Twitch bot started with bot detection and welcome tracking!');
   return client;
 }

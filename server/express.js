@@ -3,7 +3,7 @@ import path from 'path';
 import fs from 'fs';
 import tmi from 'tmi.js';
 import { fileURLToPath } from 'url';
-import { saveTwitchConfig, getTwitchConfig, getAdditionalConfig, saveAdditionalConfig } from '../config.js';
+import { saveTwitchConfig, getTwitchConfig, getMessageConfig, saveMessageConfig } from '../config.js';
 import { startBot } from './bot.js';
 
 // Create __filename and __dirname equivalents
@@ -56,16 +56,35 @@ function createExpressApp() {
     res.json(config);
   });
 
-  app.post('/save-additional-config', (req, res) => {
-    const { welcomeNewPosters, welcomeFirstTimeToday, welcomeFirstTimeViewers, messages } = req.body;
-    saveAdditionalConfig({ welcomeNewPosters, welcomeFirstTimeToday, welcomeFirstTimeViewers, messages });
-    res.json({ message: '✅ Additional settings saved successfully!' });
+  app.post('/save-message-config', (req, res) => {
+    const {
+      welcomeNewPosters,
+      welcomeFirstTimeToday,
+      welcomeFirstTimeViewers,
+      welcomeMesssagesNewPosters,
+      welcomeMessagesFirstToday,
+      welcomeMessagesFirstView,
+      messages,
+    } = req.body;
+
+    saveMessageConfig({
+      welcomeNewPosters,
+      welcomeFirstTimeToday,
+      welcomeFirstTimeViewers,
+      welcomeMesssagesNewPosters,
+      welcomeMessagesFirstToday,
+      welcomeMessagesFirstView,
+      messages,
+    });
+
+    res.json({ message: '✅ Messsage settings saved successfully!' });
   });
 
-  app.get('/get-additional-config', (req, res) => {
-    const config = getAdditionalConfig();
+  app.get('/get-message-config', (req, res) => {
+    const config = getMessageConfig();
     res.json(config);
   });
+
 
   // App info endpoint
   app.get('/api/app-info', (req, res) => {
