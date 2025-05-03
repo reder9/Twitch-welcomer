@@ -127,8 +127,15 @@
   <!-- Toast Notification -->
   <div id="toast" class="fixed top-6 right-6 bg-green-600 text-white px-4 py-2 rounded shadow-lg opacity-0 pointer-events-none transition-opacity duration-500 z-50"></div>
 
-  <!-- Footer -->
-  <div id="footer-container" class="mt-auto"></div>
+  <footer class="text-sm text-gray-500 p-4 text-center border-t mt-8">
+    <div id="footer-content">
+      <span id="app-name">ChatWave</span> 
+      <span id="app-version">v0.0.0</span> — 
+      <span id="app-author">by Your Name</span>
+    </div>
+
+    <script src="/footer.js" defer></script>
+  </footer>
 
   <script>
     function autoResize(textarea) {
@@ -186,13 +193,6 @@
       document.getElementById('welcomeFirstTimeViewers').addEventListener('change', () => {
         toggleSection('welcomeFirstTimeViewers', 'first-time-viewers-messages');
       });
-
-      // Load footer
-      fetch('/components/footer.html')
-        .then(res => res.text())
-        .then(html => {
-          document.getElementById('footer-container').innerHTML = html;
-        });
 
       // Load config
       const res = await fetch('/get-message-config');
