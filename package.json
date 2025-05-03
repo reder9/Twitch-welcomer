@@ -38,6 +38,15 @@
       "node_modules/**/*",
       "package.json"
     ],
+    "asarUnpack": [
+      "build/icons/256x256.png"
+    ],
+    "extraResources": [
+      {
+        "from": "build/icons/256x256.png",
+        "to": "assets/256x256.png"
+      }
+    ],
     "extraMetadata": {
       "type": "module"
     },
