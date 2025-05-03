@@ -76,7 +76,7 @@ export function startBot(config) {
 
     // Handle first-time message in chat
     if (tags['first-msg'] && messageConfig.welcomeNewPosters) {
-      const msg = pickRandom(messageConfig.welcomeMesssagesNewPosters).replace('{user}', username);
+      const msg = pickRandom(messageConfig.welcomeMessagesNewPosters).replace('{user}', username);
       client.say(channel, msg);
       welcomeStats.newPostersCount++;
       knownUsers.add(username);
@@ -102,7 +102,7 @@ export function startBot(config) {
       !knownUsers.has(username);
 
     if (isFirstTimeViewer) {
-      const msg = pickRandom(messageConfig.welcomeMessagesFirstView).replace('{user}', username);
+      const msg = pickRandom(messageConfig.welcomeMessagesFirstViewer).replace('{user}', username);
       client.say(channel, msg);
       welcomeStats.firstViewersCount++;
       knownUsers.add(username);

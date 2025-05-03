@@ -3,7 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
 import { startServer } from './server.js';
-import { getTwitchConfig, getMessageConfig } from './config.js';
+import { getTwitchConfig, getMessageConfig, isMessageConfigCustomized } from './config.js';
 
 // Create equivalents for __filename and __dirname in ESM
 const __filename = fileURLToPath(import.meta.url);
@@ -30,7 +30,7 @@ async function createWindow() {
     let page;
     if (!hasValidAuth) {
       page = 'auth-config.html';
-    } else if (!messageConfig) {
+    } else if (!isMessageConfigCustomized()) {
       page = 'message-config.html';
     } else {
       page = 'home.html';

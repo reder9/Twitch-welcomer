@@ -61,9 +61,9 @@ function createExpressApp() {
       welcomeNewPosters,
       welcomeFirstTimeToday,
       welcomeFirstTimeViewers,
-      welcomeMesssagesNewPosters,
+      welcomeMessagesNewPosters,
       welcomeMessagesFirstToday,
-      welcomeMessagesFirstView,
+      welcomeMessagesFirstViewer,
       messages,
     } = req.body;
 
@@ -71,9 +71,9 @@ function createExpressApp() {
       welcomeNewPosters,
       welcomeFirstTimeToday,
       welcomeFirstTimeViewers,
-      welcomeMesssagesNewPosters,
+      welcomeMessagesNewPosters,
       welcomeMessagesFirstToday,
-      welcomeMessagesFirstView,
+      welcomeMessagesFirstViewer,
       messages,
     });
 
