@@ -20,7 +20,8 @@
     "express": "^5.1.0",
     "open": "^10.1.1",
     "play-sound": "^1.1.6",
-    "tmi.js": "^1.8.5"
+    "tmi.js": "^1.8.5",
+    "ws": "^8.18.2"
   },
   "devDependencies": {
     "electron": "^28.0.0",

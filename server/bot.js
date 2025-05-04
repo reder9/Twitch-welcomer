@@ -1,6 +1,7 @@
 import tmi from 'tmi.js';
 import { getMessageConfig } from '../config.js';
 import player from 'play-sound';
+import { broadcastToast } from '../server.js';
 
 let client = null;
 const knownUsers = new Set();
@@ -101,6 +102,7 @@ export function startBot(config) {
       ).replace('{user}', username);
       client.say(channel, msg);
       playWelcomeSound();
+      broadcastToast(`🎉 Welcomed first time messager: ${username} to the chat!`);
       welcomeStats.newPostersCount++;
       knownUsers.add(username);
       return;
@@ -113,6 +115,7 @@ export function startBot(config) {
       ).replace('{user}', username);
       client.say(channel, msg);
       playWelcomeSound();
+      broadcastToast(`🎉 Welcomed returning user, but first time posting today: ${username} to the chat!`);
       welcomeStats.firstTodayCount++;
       knownUsers.add(username);
       return;
@@ -133,6 +136,7 @@ export function startBot(config) {
       ).replace('{user}', username);
       client.say(channel, msg);
       playWelcomeSound();
+      broadcastToast(`🎉 Welcomed first time lurker: ${username} to the chat!`);
       welcomeStats.firstViewersCount++;
       knownUsers.add(username);
     }

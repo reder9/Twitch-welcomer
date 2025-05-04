@@ -97,12 +97,11 @@
       <span id="app-version">v0.0.0</span> — 
       <span id="app-author">by Your Name</span>
     </div>
-
     <script src="/footer.js" defer></script>
   </footer>
 
   <!-- Toast container -->
-  <div id="toast-container" class="fixed top-4 right-4 space-y-2 z-50"></div>
+  <div id="toast-container" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 space-y-2 text-center"></div>
 
   <script>
     function toggleSidebar() {
@@ -111,16 +110,15 @@
 
     function showToast(message, type = 'success') {
       const toast = document.createElement('div');
-      toast.className = `toast px-4 py-3 rounded shadow text-white text-sm max-w-sm ${
+      toast.className = `toast px-6 py-4 rounded shadow text-white text-lg font-semibold max-w-md mx-auto ${
         type === 'error' ? 'bg-red-600' : 'bg-green-600'
       }`;
       toast.textContent = message;
 
-      document.getElementById('toast-container').appendChild(toast);
+      const container = document.getElementById('toast-container');
+      container.appendChild(toast);
 
-      setTimeout(() => {
-        toast.remove();
-      }, 4000);
+      setTimeout(() => toast.remove(), 4000);
     }
 
     function launchBot() {
@@ -170,7 +168,21 @@
         });
     }
 
-    // Initial status load
+    // WebSocket connection for real-time toast notifications
+    const protocol = location.protocol === 'https:' ? 'wss' : 'ws';
+    const ws = new WebSocket(`${protocol}://${location.host}`);
+
+    ws.addEventListener('message', (event) => {
+      try {
+        const { type, message } = JSON.parse(event.data);
+        if (type === 'toast') {
+          showToast(message);
+        }
+      } catch (err) {
+        console.error('WebSocket message error:', err);
+      }
+    });
+
     updateBotStatus();
   </script>
 </body>

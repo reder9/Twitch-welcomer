@@ -1,6 +1,7 @@
 import { createExpressApp } from './server/express.js';
 import { getTwitchConfig } from './config.js';
 import http from 'http';
+import { WebSocketServer } from 'ws';
 
 const PORT_RANGE = { min: 3000, max: 4000 };
 
@@ -28,12 +29,30 @@ async function findAvailablePort(startPort) {
   });
 }
 
+// Global list of WebSocket clients
+const wsClients = new Set();
+
+export function broadcastToast(message) {
+  const payload = JSON.stringify({ type: 'toast', message });
+  wsClients.forEach((ws) => {
+    if (ws.readyState === ws.OPEN) {
+      ws.send(payload);
+    }
+  });
+}
+
 export async function startServer() {
   try {
     const port = await findAvailablePort(PORT_RANGE.min);
 
-    const app = createExpressApp(); // Create app AFTER selecting the port
+    const app = createExpressApp();
     const server = http.createServer(app);
+    const wss = new WebSocketServer({ server });
+
+    wss.on('connection', (ws) => {
+      wsClients.add(ws);
+      ws.on('close', () => wsClients.delete(ws));
+    });
 
     return new Promise((resolve, reject) => {
       server
