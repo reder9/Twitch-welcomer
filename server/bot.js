@@ -2,10 +2,14 @@ import tmi from 'tmi.js';
 import { getMessageConfig } from '../config.js';
 import player from 'play-sound';
 import { broadcastToast } from '../server.js';
+import { loadStats, saveStats } from './storage.js';
 
 let client = null;
 const knownUsers = new Set();
 const play = player({});
+
+// Persisted stats
+export const welcomeStats = loadStats();
 
 export const BOT_LIST = [
   'streamelements',
@@ -20,12 +24,6 @@ export const BOT_LIST = [
   'phantombot',
   'deepbot'
 ];
-
-export const welcomeStats = {
-  newPostersCount: 0,
-  firstTodayCount: 0,
-  firstViewersCount: 0,
-};
 
 let lastMessageIndex = {
   newPosters: -1,
@@ -100,10 +98,11 @@ export function startBot(config) {
         messageConfig.welcomeMessagesNewPosters,
         'newPosters'
       ).replace('{user}', username);
-      client.say(channel, msg);
+      //client.say(channel, msg);
       playWelcomeSound();
       broadcastToast(`🎉 Welcomed first time messager: ${username} to the chat!`);
       welcomeStats.newPostersCount++;
+      saveStats(welcomeStats);
       knownUsers.add(username);
       return;
     }
@@ -113,10 +112,11 @@ export function startBot(config) {
         messageConfig.welcomeMessagesFirstToday,
         'firstToday'
       ).replace('{user}', username);
-      client.say(channel, msg);
+     // client.say(channel, msg);
       playWelcomeSound();
       broadcastToast(`🎉 Welcomed returning user, but first time posting today: ${username} to the chat!`);
       welcomeStats.firstTodayCount++;
+      saveStats(welcomeStats);
       knownUsers.add(username);
       return;
     }
@@ -134,10 +134,11 @@ export function startBot(config) {
         messageConfig.welcomeMessagesFirstViewer,
         'firstViewers'
       ).replace('{user}', username);
-      client.say(channel, msg);
+      //client.say(channel, msg);
       playWelcomeSound();
       broadcastToast(`🎉 Welcomed first time lurker: ${username} to the chat!`);
       welcomeStats.firstViewersCount++;
+      saveStats(welcomeStats);
       knownUsers.add(username);
     }
   });
