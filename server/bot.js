@@ -1,8 +1,10 @@
 import tmi from 'tmi.js';
 import { getMessageConfig } from '../config.js'; // Make sure this path is correct
+import player from 'play-sound';
 
 let client = null;
 const knownUsers = new Set();
+const play = player({});
 
 export const BOT_LIST = [
   'streamelements',
@@ -24,6 +26,12 @@ export const welcomeStats = {
   firstTodayCount: 0,
   firstViewersCount: 0,
 };
+
+function playWelcomeSound() {
+  play.play('./sounds/welcome.mp3', function(err) {
+    if (err) console.error('Sound error:', err);
+  });
+}
 
 function isBotUser(username) {
   if (!username) return true;
@@ -78,6 +86,7 @@ export function startBot(config) {
     if (tags['first-msg'] && messageConfig.welcomeNewPosters) {
       const msg = pickRandom(messageConfig.welcomeMessagesNewPosters).replace('{user}', username);
       client.say(channel, msg);
+      playWelcomeSound();
       welcomeStats.newPostersCount++;
       knownUsers.add(username);
       return;
@@ -87,6 +96,7 @@ export function startBot(config) {
     if (!knownUsers.has(username) && messageConfig.welcomeFirstTimeToday) {
       const msg = pickRandom(messageConfig.welcomeMessagesFirstToday).replace('{user}', username);
       client.say(channel, msg);
+      playWelcomeSound();
       welcomeStats.firstTodayCount++;
       knownUsers.add(username);
       return;
@@ -104,6 +114,7 @@ export function startBot(config) {
     if (isFirstTimeViewer) {
       const msg = pickRandom(messageConfig.welcomeMessagesFirstViewer).replace('{user}', username);
       client.say(channel, msg);
+      playWelcomeSound();
       welcomeStats.firstViewersCount++;
       knownUsers.add(username);
     }

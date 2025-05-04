@@ -19,6 +19,7 @@
     "electron-store": "^10.0.1",
     "express": "^5.1.0",
     "open": "^10.1.1",
+    "play-sound": "^1.1.6",
     "tmi.js": "^1.8.5"
   },
   "devDependencies": {
