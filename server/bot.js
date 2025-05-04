@@ -1,5 +1,5 @@
 import tmi from 'tmi.js';
-import { getMessageConfig } from '../config.js'; // Make sure this path is correct
+import { getMessageConfig } from '../config.js';
 import player from 'play-sound';
 
 let client = null;
@@ -20,15 +20,20 @@ export const BOT_LIST = [
   'deepbot'
 ];
 
-// Message send counters
 export const welcomeStats = {
   newPostersCount: 0,
   firstTodayCount: 0,
   firstViewersCount: 0,
 };
 
+let lastMessageIndex = {
+  newPosters: -1,
+  firstToday: -1,
+  firstViewers: -1
+};
+
 function playWelcomeSound() {
-  play.play('./sounds/welcome.mp3', function(err) {
+  play.play('./sounds/welcome.mp3', function (err) {
     if (err) console.error('Sound error:', err);
   });
 }
@@ -38,9 +43,7 @@ function isBotUser(username) {
 
   const lowerUsername = username.toLowerCase();
 
-  if (BOT_LIST.some(bot => lowerUsername.includes(bot))) {
-    return true;
-  }
+  if (BOT_LIST.some(bot => lowerUsername.includes(bot))) return true;
 
   const botPatterns = [
     /bot$/i,
@@ -54,8 +57,17 @@ function isBotUser(username) {
   return botPatterns.some(pattern => pattern.test(username));
 }
 
-function pickRandom(arr) {
-  return arr[Math.floor(Math.random() * arr.length)];
+function pickRandomNonRepeating(arr, lastIndexKey) {
+  if (!Array.isArray(arr) || arr.length === 0) return '';
+  if (arr.length === 1) return arr[0];
+
+  let index;
+  do {
+    index = Math.floor(Math.random() * arr.length);
+  } while (index === lastMessageIndex[lastIndexKey]);
+
+  lastMessageIndex[lastIndexKey] = index;
+  return arr[index];
 }
 
 export function startBot(config) {
@@ -82,9 +94,11 @@ export function startBot(config) {
     const username = tags['display-name'] || tags['username'];
     if (isBotUser(username)) return;
 
-    // Handle first-time message in chat
     if (tags['first-msg'] && messageConfig.welcomeNewPosters) {
-      const msg = pickRandom(messageConfig.welcomeMessagesNewPosters).replace('{user}', username);
+      const msg = pickRandomNonRepeating(
+        messageConfig.welcomeMessagesNewPosters,
+        'newPosters'
+      ).replace('{user}', username);
       client.say(channel, msg);
       playWelcomeSound();
       welcomeStats.newPostersCount++;
@@ -92,9 +106,11 @@ export function startBot(config) {
       return;
     }
 
-    // Handle first message today from known user
     if (!knownUsers.has(username) && messageConfig.welcomeFirstTimeToday) {
-      const msg = pickRandom(messageConfig.welcomeMessagesFirstToday).replace('{user}', username);
+      const msg = pickRandomNonRepeating(
+        messageConfig.welcomeMessagesFirstToday,
+        'firstToday'
+      ).replace('{user}', username);
       client.say(channel, msg);
       playWelcomeSound();
       welcomeStats.firstTodayCount++;
@@ -102,7 +118,6 @@ export function startBot(config) {
       return;
     }
 
-    // Handle first-time viewer (passive/lurking viewer without badges/mod/sub)
     const isFirstTimeViewer =
       messageConfig.welcomeFirstTimeViewers &&
       !tags['mod'] &&
@@ -112,7 +127,10 @@ export function startBot(config) {
       !knownUsers.has(username);
 
     if (isFirstTimeViewer) {
-      const msg = pickRandom(messageConfig.welcomeMessagesFirstViewer).replace('{user}', username);
+      const msg = pickRandomNonRepeating(
+        messageConfig.welcomeMessagesFirstViewer,
+        'firstViewers'
+      ).replace('{user}', username);
       client.say(channel, msg);
       playWelcomeSound();
       welcomeStats.firstViewersCount++;
