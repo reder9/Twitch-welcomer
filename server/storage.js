@@ -19,6 +19,7 @@ function getAppDataPath() {
 
 const APP_DATA_DIR = getAppDataPath();
 const STATS_FILE = path.join(APP_DATA_DIR, 'welcome-stats.json');
+const USER_DATA_FILE = path.join(APP_DATA_DIR, 'user-data.json');
 
 // Ensure the directory exists
 fs.mkdirSync(APP_DATA_DIR, { recursive: true });
@@ -38,4 +39,17 @@ export function loadStats() {
 
 export function saveStats(stats) {
   fs.writeFileSync(STATS_FILE, JSON.stringify(stats, null, 2), 'utf-8');
+}
+
+export function loadUserData() {
+  try {
+    const data = fs.readFileSync(USER_DATA_FILE, 'utf-8');
+    return JSON.parse(data);
+  } catch {
+    return {}; // No users tracked yet
+  }
+}
+
+export function saveUserData(data) {
+  fs.writeFileSync(USER_DATA_FILE, JSON.stringify(data, null, 2), 'utf-8');
 }
