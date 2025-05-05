@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Welcome Message Stats | ChatWave</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white min-h-screen flex flex-col">
+
+  <!-- Back Button -->
+  <a href="/home.html"
+     id="back-button"
+     class="absolute top-4 left-4 bg-purple-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500">
+    ← Back
+  </a>
+
+  <!-- Page Content -->
+  <div class="flex flex-1 flex-col items-center justify-center text-center p-6 w-full">
+    <div class="w-full max-w-3xl space-y-6">
+
+      <!-- Header -->
+      <div class="text-center mb-6">
+        <h1 class="text-3xl font-bold text-purple-300 mb-2">📊 Welcome Message Statistics</h1>
+        <p class="text-gray-400">Track how many users received each type of welcome message</p>
+      </div>
+
+      <!-- Stats Container -->
+      <div id="stats-container" class="space-y-6">
+        <!-- Total Count Card -->
+        <div class="bg-gray-800 rounded-lg shadow-md p-6 border-l-4 border-purple-500">
+          <div class="flex justify-between items-center">
+            <div>
+              <h2 class="text-lg font-semibold text-white">Total Welcomes Sent</h2>
+              <p class="text-sm text-gray-400">All types combined</p>
+            </div>
+            <div class="text-3xl font-bold text-purple-400" id="total-count">0</div>
+          </div>
+        </div>
+
+        <!-- New Posters -->
+        <div class="bg-gray-800 rounded-lg shadow-md overflow-hidden">
+          <div class="p-6">
+            <div class="flex justify-between items-center mb-4">
+              <div>
+                <h2 class="text-lg font-semibold text-white">New Posters</h2>
+                <p class="text-sm text-gray-400">First-time chatters</p>
+              </div>
+              <div class="text-2xl font-bold text-indigo-400" id="new-posters-count">0</div>
+            </div>
+            <div class="w-full bg-gray-700 rounded-full h-2.5">
+              <div id="new-posters-progress" class="bg-indigo-500 h-2.5 rounded-full" style="width: 0%" role="progressbar"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- First Today -->
+        <div class="bg-gray-800 rounded-lg shadow-md overflow-hidden">
+          <div class="p-6">
+            <div class="flex justify-between items-center mb-4">
+              <div>
+                <h2 class="text-lg font-semibold text-white">First Today</h2>
+                <p class="text-sm text-gray-400">Returning chatters (first today)</p>
+              </div>
+              <div class="text-2xl font-bold text-green-400" id="first-today-count">0</div>
+            </div>
+            <div class="w-full bg-gray-700 rounded-full h-2.5">
+              <div id="first-today-progress" class="bg-green-500 h-2.5 rounded-full" style="width: 0%" role="progressbar"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- First Viewers -->
+        <div class="bg-gray-800 rounded-lg shadow-md overflow-hidden">
+          <div class="p-6">
+            <div class="flex justify-between items-center mb-4">
+              <div>
+                <h2 class="text-lg font-semibold text-white">First Viewers</h2>
+                <p class="text-sm text-gray-400">First-time viewers</p>
+              </div>
+              <div class="text-2xl font-bold text-purple-300" id="first-viewers-count">0</div>
+            </div>
+            <div class="w-full bg-gray-700 rounded-full h-2.5">
+              <div id="first-viewers-progress" class="bg-purple-500 h-2.5 rounded-full" style="width: 0%" role="progressbar"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Last Updated -->
+        <div class="text-center text-sm text-gray-500 mt-4">
+          Last updated: <span id="last-updated">Just now</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="text-sm text-gray-500 p-4 text-center border-t border-gray-700">
+    <div id="footer-content">
+      <span id="app-name">ChatWave</span> 
+      <span id="app-version">v0.0.0</span> — 
+      <span id="app-author">by Your Name</span>
+    </div>
+    <script src="/footer.js" defer></script>
+  </footer>
+
+  <!-- Script to Fetch Stats -->
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const response = await fetch('/api/welcome-stats');
+        const stats = await response.json();
+
+        document.getElementById('new-posters-count').textContent = stats.newPostersCount;
+        document.getElementById('first-today-count').textContent = stats.firstTodayCount;
+        document.getElementById('first-viewers-count').textContent = stats.firstViewersCount;
+
+        const total = stats.newPostersCount + stats.firstTodayCount + stats.firstViewersCount;
+        document.getElementById('total-count').textContent = total;
+
+        updateProgressBar('new-posters-progress', stats.newPostersCount, total);
+        updateProgressBar('first-today-progress', stats.firstTodayCount, total);
+        updateProgressBar('first-viewers-progress', stats.firstViewersCount, total);
+      } catch (error) {
+        console.error('Error loading stats:', error);
+        document.getElementById('stats-container').innerHTML = `
+          <div class="bg-red-500 text-white p-4 rounded-lg">
+            <p>⚠️ Failed to load statistics. Please try again later.</p>
+          </div>
+        `;
+      }
+    });
+
+    function updateProgressBar(id, value, total) {
+      const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+      const bar = document.getElementById(id);
+      bar.style.width = \`\${percentage}%\`;
+      bar.setAttribute('aria-valuenow', percentage);
+    }
+  </script>
+</body>
+</html>

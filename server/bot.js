@@ -98,7 +98,7 @@ export function startBot(config) {
         messageConfig.welcomeMessagesNewPosters,
         'newPosters'
       ).replace('{user}', username);
-      //client.say(channel, msg);
+      client.say(channel, msg);
       playWelcomeSound();
       broadcastToast(`🎉 Welcomed first time messager: ${username} to the chat!`);
       welcomeStats.newPostersCount++;
@@ -112,7 +112,7 @@ export function startBot(config) {
         messageConfig.welcomeMessagesFirstToday,
         'firstToday'
       ).replace('{user}', username);
-     // client.say(channel, msg);
+     client.say(channel, msg);
       playWelcomeSound();
       broadcastToast(`🎉 Welcomed returning user, but first time posting today: ${username} to the chat!`);
       welcomeStats.firstTodayCount++;
@@ -134,7 +134,7 @@ export function startBot(config) {
         messageConfig.welcomeMessagesFirstViewer,
         'firstViewers'
       ).replace('{user}', username);
-      //client.say(channel, msg);
+      client.say(channel, msg);
       playWelcomeSound();
       broadcastToast(`🎉 Welcomed first time lurker: ${username} to the chat!`);
       welcomeStats.firstViewersCount++;

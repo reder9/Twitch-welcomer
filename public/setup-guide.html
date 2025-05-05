@@ -19,67 +19,87 @@
     <section>
       <h2 class="text-xl font-semibold text-purple-300 mb-2">🎯 Step 1: Create a Twitch Bot Account</h2>
       <p class="text-gray-300">
-        If you haven't already, create a separate Twitch account to act as your bot. You can do this at
+        Create a separate Twitch account for your bot at 
         <a href="https://www.twitch.tv/signup" target="_blank" class="text-blue-400 hover:underline">twitch.tv/signup</a>.
-        Give it a name like <code>MyChannelBot</code> so it's easy to recognize.
+        Name it something like <code>YourChannelBot</code>.
       </p>
+      <div class="bg-gray-800 p-4 rounded-lg mt-2 border border-purple-600">
+        <p class="text-yellow-300 font-medium">⚠️ Important:</p>
+        <p class="text-gray-300 mt-1">Enable <strong>Two-Factor Authentication (2FA)</strong> on this account under 
+          <a href="https://www.twitch.tv/settings/security" target="_blank" class="text-blue-400 hover:underline">Security Settings</a>.
+          Twitch requires this for OAuth token generation.
+        </p>
+      </div>
     </section>
 
     <section>
-      <h2 class="text-xl font-semibold text-purple-300 mb-2">🔑 Step 2: Generate Your OAuth Token</h2>
-      <p class="text-gray-300 mb-2">
-        The TMI Token Generator has been discontinued, but you can still generate a valid OAuth token using this trusted tool:
-      </p>
-      <a href="https://twitchtokengenerator.com/" target="_blank" class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium shadow-md transition">
-        Get OAuth Token at twitchtokengenerator.com
-      </a>
-      <p class="text-sm text-gray-400 mt-2">
-        Use the "Chat Token" option, and make sure you're logged in as your bot account when generating the token.
-        You’ll receive something like <code>oauth:abc123xyz456</code>. Copy this for the config screen.
-      </p>
+      <h2 class="text-xl font-semibold text-purple-300 mb-2">🔑 Step 2: Register Your App</h2>
+      <ol class="list-decimal list-inside text-gray-300 space-y-3">
+        <li>Go to <a href="https://dev.twitch.tv/console" target="_blank" class="text-blue-400 hover:underline">Twitch Developer Console</a></li>
+        <li>Click "Applications" → "Register Your Application"</li>
+        <li>Fill in:
+          <ul class="list-disc list-inside ml-6 mt-1 space-y-1">
+            <li><strong>Name</strong>: <code>ChatWave Bot</code> (or your custom name)</li>
+            <li><strong>OAuth Redirect URL</strong>: <code>http://localhost</code></li>
+            <li><strong>Category</strong>: Select "Chat Bot"</li>
+          </ul>
+        </li>
+        <li>Click "Register" and note your <strong>Client ID</strong></li>
+      </ol>
     </section>
 
     <section>
-      <h2 class="text-xl font-semibold text-purple-300 mb-2">📺 Step 3: Enter Your Channel Name</h2>
+      <h2 class="text-xl font-semibold text-purple-300 mb-2">🔐 Step 3: Generate OAuth Token</h2>
+      <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+        <p class="text-gray-300 mb-3">Construct this URL (replace <code>[CLIENT_ID]</code> with your Client ID):</p>
+        <div class="bg-gray-900 p-3 rounded overflow-x-auto">
+          <code class="text-green-400 break-all">
+            https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=[CLIENT_ID]&redirect_uri=http://localhost&scope=chat:read+chat:edit
+          </code>
+        </div>
+        <ol class="list-decimal list-inside text-gray-300 mt-3 space-y-2">
+          <li>Paste this into your browser's address bar</li>
+          <li>Log in with your <strong>bot account</strong> when prompted</li>
+          <li>Authorize the requested permissions (chat read/edit only)</li>
+          <li>After redirect, copy the <code>access_token</code> from the URL fragment</li>
+          <li>Add <code>oauth:</code> prefix (e.g., <code>oauth:abcdef123456</code>)</li>
+        </ol>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="text-xl font-semibold text-purple-300 mb-2">📺 Step 4: Configure ChatWave</h2>
       <p class="text-gray-300">
-        This is your main Twitch channel (not the bot). For example, if your channel is <code>twitch.tv/superstreamer</code>,
-        enter <code>superstreamer</code> — no <code>#</code> or special symbols needed.
+        In the ChatWave configuration page:
       </p>
+      <ul class="list-disc list-inside text-gray-300 mt-2 space-y-1">
+        <li><strong>Twitch Username</strong>: Your bot account name</li>
+        <li><strong>OAuth Token</strong>: The <code>oauth:...</code> token you generated</li>
+        <li><strong>Channel Name</strong>: Your main channel (without <code>#</code>)</li>
+      </ul>
     </section>
 
     <section>
-      <h2 class="text-xl font-semibold text-purple-300 mb-2">✅ Step 4: Save and Launch</h2>
-      <p class="text-gray-300">
-        Once you've filled in your bot username, token, and channel name, hit <strong>Save Config</strong> and return to the dashboard to <strong>Launch Bot</strong>. Your Twitch welcome bot will be live!
-      </p>
+      <h2 class="text-xl font-semibold text-purple-300 mb-2">🛡️ Security Notes</h2>
+      <div class="bg-gray-800/50 border-l-4 border-yellow-500 p-4">
+        <p class="text-gray-300">
+          <strong>Never share your OAuth token!</strong> If compromised:
+        </p>
+        <ul class="list-disc list-inside ml-5 mt-1 space-y-1">
+          <li>Revoke it at <a href="https://www.twitch.tv/settings/connections" target="_blank" class="text-blue-400 hover:underline">Twitch Connections</a></li>
+          <li>Generate a new token following the same steps</li>
+        </ul>
+      </div>
     </section>
 
-    <section>
-      <h2 class="text-xl font-semibold text-purple-300 mb-2">🛡️ A Note on Security</h2>
-      <p class="text-gray-300">
-        Third-party token generators are convenient but come with trust risks. If you're a developer, it's best to register your own Twitch app and generate tokens directly via the official OAuth flow.
-        See the <a href="https://dev.twitch.tv/docs/authentication" target="_blank" class="text-blue-400 hover:underline">Twitch OAuth documentation</a> for more info.
-      </p>
-    </section>
-
-    <section>
-      <h2 class="text-xl font-semibold text-purple-300 mb-2">❓ Still Need Help?</h2>
-      <p class="text-gray-300">
-        If you're stuck, try logging out and back into Twitch, double-checking your token format, or asking in a developer Discord or forum.
-        Make sure your bot account has sent at least one message in the channel chat!
-      </p>
-    </section>
-
-    <footer class="text-sm text-gray-500 p-4 text-center border-t mt-8">
-    <div id="footer-content">
-      <span id="app-name">ChatWave</span> 
-      <span id="app-version">v0.0.0</span> — 
-      <span id="app-author">by Your Name</span>
-    </div>
-
-    <script src="/footer.js" defer></script>
-  </footer>
+    <footer class="text-sm text-gray-500 p-4 text-center border-t border-gray-800 mt-8">
+      <div id="footer-content">
+        <span id="app-name">ChatWave</span> 
+        <span id="app-version">v0.0.0</span> — 
+        <span id="app-author">by Your Name</span>
+      </div>
+      <script src="/footer.js" defer></script>
+    </footer>
   </main>
-  </script>
 </body>
 </html>

@@ -5,6 +5,7 @@ import tmi from 'tmi.js';
 import { fileURLToPath } from 'url';
 import { saveTwitchConfig, getTwitchConfig, getMessageConfig, saveMessageConfig } from '../config.js';
 import { startBot } from './bot.js';
+import { loadStats } from './storage.js';
 
 // Create __filename and __dirname equivalents
 const __filename = fileURLToPath(import.meta.url);
@@ -90,6 +91,11 @@ function createExpressApp() {
   app.get('/api/app-info', (req, res) => {
     const { name, version, author } = packageJson;
     res.json({ name, version, author });
+  });
+
+  app.get('/api/welcome-stats', (req, res) => {
+    const stats = loadStats();
+    res.json(stats);
   });
 
   // Bot management
