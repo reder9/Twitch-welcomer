@@ -60,13 +60,28 @@
 
   </div>
 
-  <footer class="text-sm text-gray-500 p-4 text-center border-t mt-8">
-    <div id="footer-content">
-      <span id="app-name">ChatWave</span> 
-      <span id="app-version">v0.0.0</span> — 
-      <span id="app-author">by Your Name</span>
-    </div>
+  <footer class="text-sm text-gray-500 p-4 border-t mt-8">
+    <div class="flex flex-col md:flex-row justify-between items-center max-w-6xl mx-auto gap-4">
+      
+      <!-- Left Section -->
+      <div id="footer-content" class="text-center md:text-left">
+        <span id="app-name">ChatWave</span> 
+        <span id="app-version">v0.0.0</span> — 
+        <span id="app-author">by Your Name</span>
+      </div>
 
+      <!-- Right Section -->
+      <div class="flex items-center space-x-4">
+        <a href="/feedback.html" class="text-blue-400 hover:text-blue-300 transition">
+          💡 Suggest a Feature / Report a Bug
+        </a>
+        <a href="https://www.buymeacoffee.com/reder9" target="_blank" rel="noopener noreferrer"
+           class="text-yellow-400 hover:text-yellow-300 transition font-semibold">
+          ☕ Buy Me a Coffee
+        </a>
+      </div>
+
+    </div>
     <script src="/footer.js" defer></script>
   </footer>
 
@@ -137,7 +152,7 @@
         messageEl.classList.add('text-red-400');
       }
     });
-    
+
   </script>
 </body>
 </html>
