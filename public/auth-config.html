@@ -8,14 +8,11 @@
 <body class="bg-gray-900 text-white min-h-screen flex flex-col">
 
   <!-- Full screen layout -->
-  <div class="flex flex-1 flex-col items-center justify-center text-center p-6">
+  <div class="flex flex-1 flex-col items-center justify-center text-center p-6 relative">
 
-    <!-- Back button -->
-    <a href="/home.html"
-       id="back-button"
-       class="absolute top-4 left-4 bg-purple-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 hidden">
-      ← Back
-    </a>
+    <!-- Reusable Back Button Mount Point -->
+    <div id="back-button-placeholder" class="absolute top-4 left-4"></div>
+    <script src="/back-button.js" defer></script>
 
     <h2 class="text-3xl font-semibold mb-4 text-gray-300">🔐 Auth Configuration</h2>
 
@@ -60,33 +57,11 @@
 
   </div>
 
-  <footer class="text-sm text-gray-500 p-4 border-t mt-8">
-    <div class="flex flex-col md:flex-row justify-between items-center max-w-6xl mx-auto gap-4">
-      
-      <!-- Left Section -->
-      <div id="footer-content" class="text-center md:text-left">
-        <span id="app-name">ChatWave</span> 
-        <span id="app-version">v0.0.0</span> — 
-        <span id="app-author">by Your Name</span>
-      </div>
-
-      <!-- Right Section -->
-      <div class="flex items-center space-x-4">
-        <a href="/feedback.html" class="text-blue-400 hover:text-blue-300 transition">
-          💡 Suggest a Feature / Report a Bug
-        </a>
-        <a href="https://www.buymeacoffee.com/reder9" target="_blank" rel="noopener noreferrer"
-           class="text-yellow-400 hover:text-yellow-300 transition font-semibold">
-          ☕ Buy Me a Coffee
-        </a>
-      </div>
-
-    </div>
-    <script src="/footer.js" defer></script>
-  </footer>
+  <!-- ✅ Reusable Footer Mount Point -->
+  <div id="footer-placeholder"></div>
+  <script src="/footer.js" defer></script>
 
   <script>
-    // Fetch existing config
     async function checkSettings() {
       try {
         const res = await fetch('/get-config');
@@ -108,7 +83,6 @@
     const form = document.getElementById('config-form');
     const messageEl = document.getElementById('response-message');
     const spinner = document.getElementById('spinner');
-    const saveBtn = document.getElementById('save-button');
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -152,7 +126,6 @@
         messageEl.classList.add('text-red-400');
       }
     });
-
   </script>
 </body>
 </html>
