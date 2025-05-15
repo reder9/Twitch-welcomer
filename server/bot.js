@@ -2,7 +2,7 @@ import tmi from 'tmi.js';
 import { getMessageConfig } from '../config.js';
 import player from 'play-sound';
 import { broadcastToast } from '../server.js';
-import { loadStats, saveStats, loadUserData, saveUserData } from './storage.js';
+import { loadStats, saveStats, loadUserData, saveUserData, loadAppConfig} from './storage.js';
 
 let client = null;
 const play = player({});
@@ -32,7 +32,14 @@ let lastMessageIndex = {
 };
 
 function playWelcomeSound() {
-  play.play('./sounds/welcome.mp3', function (err) {
+  const appConfig = loadAppConfig(); // load app config dynamically
+  if (!appConfig.enableSound) {
+    return; // Do not play sound if disabled
+  }
+
+  const soundFile = appConfig.soundFilePath || './sounds/welcome.mp3';
+
+  play.play(soundFile, function (err) {
     if (err) console.error('Sound error:', err);
   });
 }

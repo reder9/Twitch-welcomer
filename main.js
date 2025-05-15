@@ -4,13 +4,13 @@ import { fileURLToPath } from 'url';
 import fs from 'fs';
 import { startServer } from './server.js';
 import { getTwitchConfig, getMessageConfig, isMessageConfigCustomized } from './config.js';
+import { setupAutoStartOnBoot } from './server/autostart.js'; // ✅ Auto-launch integration
 
 // Create equivalents for __filename and __dirname in ESM
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 let mainWindow;
-
 
 async function createWindow() {
   console.log('Creating window...');
@@ -91,9 +91,13 @@ async function createWindow() {
 
 console.log('App is initializing...');
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
   console.log('App is ready');
-  createWindow();
+
+  // ✅ Auto-launch logic here
+  await setupAutoStartOnBoot();
+
+  await createWindow();
 });
 
 app.on('window-all-closed', () => {

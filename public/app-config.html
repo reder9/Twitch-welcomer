@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>App Config</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white min-h-screen flex flex-col">
+
+  <div class="flex flex-1 flex-col items-center justify-center text-center p-6 relative">
+
+    <!-- Back button -->
+    <a href="/home.html"
+       id="back-button"
+       class="absolute top-4 left-4 bg-purple-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 hidden">
+      ← Back
+    </a>
+
+    <h2 class="text-3xl font-semibold mb-6 text-purple-400">⚙️ App Configuration</h2>
+
+    <form id="app-config-form" class="space-y-10 w-full max-w-lg text-left">
+
+      <!-- Startup Settings -->
+      <div class="space-y-4 bg-gray-800 p-5 rounded-lg shadow-lg">
+        <h3 class="text-xl font-semibold text-purple-300 mb-2">🚀 Startup Settings</h3>
+
+        <div class="flex items-center">
+          <input id="autoStart" name="autoStart" type="checkbox"
+                 class="w-5 h-5 text-purple-600 bg-gray-700 border-gray-600 rounded focus:ring-purple-500 focus:ring-2">
+          <label for="autoStart" class="ml-3 text-lg font-medium text-gray-200">Auto-start on machine boot</label>
+        </div>
+
+        <div class="flex items-center">
+          <input id="startBotOnLaunch" name="startBotOnLaunch" type="checkbox"
+                 class="w-5 h-5 text-purple-600 bg-gray-700 border-gray-600 rounded focus:ring-purple-500 focus:ring-2">
+          <label for="startBotOnLaunch" class="ml-3 text-lg font-medium text-gray-200">Start bot when app launches</label>
+        </div>
+      </div>
+
+      <!-- Sound Settings -->
+      <div class="space-y-4 bg-gray-800 p-5 rounded-lg shadow-lg">
+        <h3 class="text-xl font-semibold text-purple-300 mb-2">🔊 Sound Settings</h3>
+
+        <div class="flex items-center">
+          <input id="enableSound" name="enableSound" type="checkbox"
+                 class="w-5 h-5 text-purple-600 bg-gray-700 border-gray-600 rounded focus:ring-purple-500 focus:ring-2">
+          <label for="enableSound" class="ml-3 text-lg font-medium text-gray-200">Enable notification sound</label>
+        </div>
+
+        <div>
+          <label for="soundFilePath" class="block text-sm font-medium text-gray-400 mb-1">Custom sound file:</label>
+          <input id="soundFilePath" name="soundFilePath" type="file" accept="audio/*"
+                 class="block w-full text-sm text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700">
+          <div class="mt-2 flex items-center justify-between">
+            <p id="current-sound-path" class="text-sm text-gray-400 italic truncate w-4/5"></p>
+            <button id="clear-sound-button"
+                    type="button"
+                    class="text-sm text-red-400 hover:text-red-300 ml-4">
+              ✖ Clear
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Save Button -->
+      <button type="submit"
+              id="save-button"
+              class="w-full bg-blue-600 hover:bg-blue-700 transition-colors text-white font-semibold py-2 rounded-lg flex items-center justify-center gap-2">
+        <span>💾 Save Settings</span>
+        <svg id="spinner" class="animate-spin h-5 w-5 text-white hidden"
+             xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10"
+                  stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+        </svg>
+      </button>
+
+      <p id="save-status" class="text-sm mt-2 hidden"></p>
+    </form>
+  </div>
+
+  <footer class="text-sm text-gray-400 p-4 border-t mt-8 bg-gray-900">
+    <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+      <div class="text-center md:text-left">
+        <span id="app-name">ChatWave</span>
+        <span id="app-version">v0.0.0</span> —
+        <span id="app-author">by Your Name</span>
+      </div>
+
+      <div class="flex flex-col md:flex-row items-center gap-4">
+        <a href="#" onclick="openEmail(event)"
+           class="text-blue-400 hover:text-blue-300 transition">
+          💬 Submit Feedback
+        </a>
+        <a href="https://www.buymeacoffee.com/yourusername" target="_blank"
+           class="text-yellow-400 hover:text-yellow-300 transition">
+          ☕ Buy Me a Coffee
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    function openEmail(event) {
+      event.preventDefault();
+      const subject = encodeURIComponent('App Config Feedback for ChatWave');
+      const body = encodeURIComponent('Hi,\n\nI wanted to share some feedback:\n\n');
+      window.location.href = `mailto:you@example.com?subject=${subject}&body=${body}`;
+    }
+
+    let currentSoundFilePath = '';
+
+    async function loadConfig() {
+      try {
+        const res = await fetch('/api/app-config');
+        const config = await res.json();
+
+        document.getElementById('autoStart').checked = config.autoStart || false;
+        document.getElementById('startBotOnLaunch').checked = config.startBotOnLaunch || false;
+        document.getElementById('enableSound').checked = config.enableSound || false;
+
+        currentSoundFilePath = config.soundFilePath || './sounds/welcome.mp3';
+        document.getElementById('current-sound-path').textContent = currentSoundFilePath;
+
+        document.getElementById('back-button').classList.remove('hidden');
+      } catch (err) {
+        console.error('Failed to load config:', err);
+      }
+    }
+
+    document.getElementById('clear-sound-button').addEventListener('click', () => {
+      currentSoundFilePath = 'sounds/welcome.mp3';
+      document.getElementById('current-sound-path').textContent = currentSoundFilePath;
+      document.getElementById('soundFilePath').value = ''; // Clear input
+    });
+
+    document.getElementById('app-config-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const saveStatus = document.getElementById('save-status');
+      const spinner = document.getElementById('spinner');
+      const fileInput = document.getElementById('soundFilePath');
+
+      const config = {
+        autoStart: document.getElementById('autoStart').checked,
+        startBotOnLaunch: document.getElementById('startBotOnLaunch').checked,
+        enableSound: document.getElementById('enableSound').checked,
+        soundFilePath: currentSoundFilePath
+      };
+
+      // If a new file is selected, update the config
+      if (fileInput.files.length > 0) {
+        config.soundFilePath = fileInput.files[0].path;
+      }
+
+      spinner.classList.remove('hidden');
+      saveStatus.textContent = 'Saving...';
+      saveStatus.classList.remove('hidden', 'text-green-400', 'text-red-400');
+      saveStatus.classList.add('text-blue-400');
+
+      try {
+        const res = await fetch('/api/app-config', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(config)
+        });
+
+        const result = await res.json();
+        spinner.classList.add('hidden');
+
+        if (!res.ok) {
+          saveStatus.textContent = result.message || 'Failed to save settings.';
+          saveStatus.classList.remove('text-blue-400');
+          saveStatus.classList.add('text-red-400');
+        } else {
+          saveStatus.textContent = result.message || 'Settings saved successfully!';
+          saveStatus.classList.remove('text-blue-400');
+          saveStatus.classList.add('text-green-400');
+        }
+
+        // Update display path if new file was selected
+        if (fileInput.files.length > 0) {
+          currentSoundFilePath = fileInput.files[0].path;
+          document.getElementById('current-sound-path').textContent = currentSoundFilePath;
+        }
+
+      } catch (err) {
+        spinner.classList.add('hidden');
+        saveStatus.textContent = 'Error occurred while saving.';
+        saveStatus.classList.remove('text-blue-400');
+        saveStatus.classList.add('text-red-400');
+      }
+    });
+
+    window.addEventListener('DOMContentLoaded', loadConfig);
+  </script>
+
+</body>
+</html>

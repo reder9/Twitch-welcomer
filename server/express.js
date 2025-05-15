@@ -3,9 +3,18 @@ import path from 'path';
 import fs from 'fs';
 import tmi from 'tmi.js';
 import { fileURLToPath } from 'url';
-import { saveTwitchConfig, getTwitchConfig, getMessageConfig, saveMessageConfig } from '../config.js';
+import {
+  saveTwitchConfig,
+  getTwitchConfig,
+  getMessageConfig,
+  saveMessageConfig
+} from '../config.js';
 import { startBot } from './bot.js';
-import { loadStats } from './storage.js';
+import {
+  loadStats,
+  loadAppConfig,       // ✅ NEW
+  saveAppConfig        // ✅ NEW
+} from './storage.js';
 
 // Create __filename and __dirname equivalents
 const __filename = fileURLToPath(import.meta.url);
@@ -21,11 +30,12 @@ function createExpressApp() {
 
   // Serve static files
   app.use(express.static(path.join(__dirname, '..', 'public')));
-
-  // Serve shared components
   app.use('/components', express.static(path.join(__dirname, '..', 'public/components')));
-
   app.use(express.json());
+
+  // Bot state variables
+  let botRunning = false;
+  let botClient = null;
 
   // Twitch config saving
   app.post('/save-config', async (req, res) => {
@@ -86,8 +96,27 @@ function createExpressApp() {
     res.json(config);
   });
 
+  // ✅ App config APIs
+  app.get('/api/app-config', (req, res) => {
+    try {
+      const config = loadAppConfig();
+      res.json(config);
+    } catch (err) {
+      res.status(500).json({ message: `❌ Failed to load app config: ${err.message}` });
+    }
+  });
 
-  // App info endpoint
+  app.post('/api/app-config', (req, res) => {
+    try {
+      const config = req.body;
+      saveAppConfig(config);
+      res.json({ message: '✅ App config saved successfully!' });
+    } catch (err) {
+      res.status(500).json({ message: `❌ Failed to save app config: ${err.message}` });
+    }
+  });
+
+  // App info
   app.get('/api/app-info', (req, res) => {
     const { name, version, author } = packageJson;
     res.json({ name, version, author });
@@ -98,10 +127,7 @@ function createExpressApp() {
     res.json(stats);
   });
 
-  // Bot management
-  let botRunning = false;
-  let botClient = null;
-
+  // Bot controls
   app.post('/launch-bot', (req, res) => {
     try {
       const config = getTwitchConfig();
@@ -110,7 +136,6 @@ function createExpressApp() {
         return res.status(400).json({ message: '❌ Missing Twitch configuration. Please save it first.' });
       }
 
-      // Start and save client
       botClient = startBot({
         username: config.username,
         password: config.password,
@@ -144,10 +169,33 @@ function createExpressApp() {
     res.json({ running: botRunning });
   });
 
-  // Fallback to main page
+  // Fallback route
   app.use((req, res) => {
     res.status(404).sendFile(path.join(__dirname, '..', 'public', 'auth-config.html'));
   });
+
+  // ✅ Auto-start bot if config is enabled
+  try {
+    const appConfig = loadAppConfig();
+    const twitchConfig = getTwitchConfig();
+
+    if (
+      appConfig.startBotOnLaunch &&
+      twitchConfig?.username &&
+      twitchConfig?.password &&
+      twitchConfig?.channels?.[0]
+    ) {
+      console.log('🚀 Auto-starting bot...');
+      botClient = startBot({
+        username: twitchConfig.username,
+        password: twitchConfig.password,
+        channels: [twitchConfig.channels[0]]
+      });
+      botRunning = true;
+    }
+  } catch (err) {
+    console.error('⚠️ Failed to auto-start bot:', err.message);
+  }
 
   return app;
 }

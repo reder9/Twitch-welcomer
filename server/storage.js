@@ -20,6 +20,7 @@ function getAppDataPath() {
 const APP_DATA_DIR = getAppDataPath();
 const STATS_FILE = path.join(APP_DATA_DIR, 'welcome-stats.json');
 const USER_DATA_FILE = path.join(APP_DATA_DIR, 'user-data.json');
+const CONFIG_FILE = path.join(APP_DATA_DIR, 'app-config.json');
 
 // Ensure the directory exists
 fs.mkdirSync(APP_DATA_DIR, { recursive: true });
@@ -52,4 +53,17 @@ export function loadUserData() {
 
 export function saveUserData(data) {
   fs.writeFileSync(USER_DATA_FILE, JSON.stringify(data, null, 2), 'utf-8');
+}
+
+export function loadAppConfig() {
+  try {
+    const data = fs.readFileSync(CONFIG_FILE, 'utf-8');
+    return JSON.parse(data);
+  } catch {
+    return {}; // Return empty config if not found
+  }
+}
+
+export function saveAppConfig(config) {
+  fs.writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2), 'utf-8');
 }
