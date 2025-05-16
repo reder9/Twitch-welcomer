@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         <!-- Right Section -->
         <div class="flex items-center space-x-4">
-          <a href="/feedback.html" class="text-blue-400 hover:text-blue-300 transition">
+          <a href="https://redersoft.canny.io/" class="text-blue-400 hover:text-blue-300 transition">
             💡 Suggest a Feature / Report a Bug
           </a>
           <a href="https://www.buymeacoffee.com/reder9" target="_blank" rel="noopener noreferrer"
